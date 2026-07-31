@@ -86,7 +86,7 @@ const inputValido: RegistroDiarioInput = {
   pollo_llevada: 20,
   regalos_carne: 5,
   ingreso_total: 70000,
-  monto_caja: 30000,
+  monto_billetera: 30000,
   monto_monedas: 20000,
   monto_nu: 20000,
   notas: null,

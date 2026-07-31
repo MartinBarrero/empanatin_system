@@ -12,7 +12,7 @@ export interface RegistroDiarioInput {
   pollo_llevada: number;
   regalos_carne: number;
   ingreso_total: number;
-  monto_caja: number;
+  monto_billetera: number;
   monto_monedas: number;
   monto_nu: number;
   notas: string | null;
@@ -66,10 +66,10 @@ export async function guardarRegistroDiario(
   client: SupabaseClient,
   input: RegistroDiarioInput
 ): Promise<RegistroDiario> {
-  const sumaBolsillos = input.monto_caja + input.monto_monedas + input.monto_nu;
+  const sumaBolsillos = input.monto_billetera + input.monto_monedas + input.monto_nu;
   if (
     !sumaBolsillosCuadra(
-      input.monto_caja,
+      input.monto_billetera,
       input.monto_monedas,
       input.monto_nu,
       input.ingreso_total
@@ -96,7 +96,7 @@ export async function guardarRegistroDiario(
         pollo_llevada: input.pollo_llevada,
         regalos_carne: input.regalos_carne,
         ingreso_total: input.ingreso_total,
-        monto_caja: input.monto_caja,
+        monto_billetera: input.monto_billetera,
         monto_monedas: input.monto_monedas,
         monto_nu: input.monto_nu,
         costo_recuperado: costoRecuperado,
