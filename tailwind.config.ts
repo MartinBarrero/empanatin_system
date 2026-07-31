@@ -11,18 +11,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#12141A",
-        surface: "#1C1F27",
-        border: "#2A2E38",
-        foreground: "#EDEFF3",
-        muted: "#9BA1AE",
-        accent: "#E08A4C",
+        background: "#0A0A0B",
+        surface: "#1A1A1D",
+        border: "#2C2C30",
+        foreground: "#F5F5F0",
+        muted: "#A3A3A8",
+        accent: "#F2C230",
         success: "#3DB56A",
         danger: "#E2554A",
-        warning: "#E0B94C",
+        warning: "#D9A441",
       },
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        serif: ["var(--font-playfair)", "Georgia", "serif"],
       },
     },
   },
