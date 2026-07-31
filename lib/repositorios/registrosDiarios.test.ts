@@ -2,7 +2,6 @@ import { describe, expect, test } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Configuracion } from "../calculos";
 import {
-  DistribucionBolsillosInvalidaError,
   guardarRegistroDiario,
   obtenerConfiguracionVigente,
   obtenerRegistroPorFecha,
@@ -85,7 +84,6 @@ const inputValido: RegistroDiarioInput = {
   carne_llevada: 30,
   pollo_llevada: 20,
   regalos_carne: 5,
-  ingreso_total: 70000,
   monto_billetera: 30000,
   monto_monedas: 20000,
   monto_nu: 20000,
@@ -119,6 +117,7 @@ describe("obtenerRegistroPorFecha", () => {
     const registroExistente = {
       id: "uuid-1",
       ...inputValido,
+      ingreso_total: 70000,
       costo_recuperado: 53600,
       gasto_operativo: 5000,
       utilidad: 11400,
@@ -135,23 +134,11 @@ describe("obtenerRegistroPorFecha", () => {
 });
 
 describe("guardarRegistroDiario", () => {
-  test("rechaza el guardado si los bolsillos no cuadran con el ingreso total, sin tocar la base de datos", async () => {
-    const { client, fromCalls } = createFakeClient({});
-    const inputInvalido: RegistroDiarioInput = {
-      ...inputValido,
-      monto_nu: 10000, // 30000 + 20000 + 10000 = 60000 != 70000
-    };
-
-    await expect(
-      guardarRegistroDiario(client, inputInvalido)
-    ).rejects.toThrow(DistribucionBolsillosInvalidaError);
-    expect(fromCalls).toEqual([]);
-  });
-
-  test("calcula y congela costo_recuperado, gasto_operativo y utilidad al guardar", async () => {
+  test("calcula ingreso_total como la suma de los tres bolsillos y lo guarda junto con costo_recuperado/utilidad", async () => {
     const registroGuardado = {
       id: "uuid-1",
       ...inputValido,
+      ingreso_total: 70000,
       costo_recuperado: 53600,
       gasto_operativo: 5000,
       utilidad: 11400,
@@ -167,6 +154,7 @@ describe("guardarRegistroDiario", () => {
     expect(resultado).toEqual(registroGuardado);
     expect(getUpsertPayload()).toMatchObject({
       fecha: "2026-07-30",
+      ingreso_total: 70000,
       costo_recuperado: 53600,
       gasto_operativo: 5000,
       utilidad: 11400,
@@ -177,6 +165,7 @@ describe("guardarRegistroDiario", () => {
     const registroGuardado = {
       id: "uuid-1",
       ...inputValido,
+      ingreso_total: 70000,
       costo_recuperado: 53600,
       gasto_operativo: 5000,
       utilidad: 11400,
