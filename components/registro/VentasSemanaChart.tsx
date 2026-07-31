@@ -27,7 +27,8 @@ const datosMock = [
 export function VentasSemanaChart() {
   return (
     <div className="rounded-md border border-border bg-surface p-4">
-      <h3 className="mb-4 text-sm font-medium text-muted">Ventas de la semana actual</h3>
+      <h3 className="mb-1 text-sm font-medium text-muted">Ventas de la semana actual</h3>
+      <p className="mb-4 text-xs text-warning">Datos de ejemplo — aún no conectado a tus ventas reales.</p>
       <ResponsiveContainer width="100%" height={280}>
         <BarChart data={datosMock}>
           <CartesianGrid strokeDasharray="3 3" stroke="#2C2C30" />
