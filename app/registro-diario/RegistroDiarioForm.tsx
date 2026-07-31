@@ -1,0 +1,316 @@
+"use client";
+
+import { useState, useTransition, type FormEvent } from "react";
+import {
+  calcularCostoRecuperado,
+  calcularUtilidad,
+  sumaBolsillosCuadra,
+  type Configuracion,
+} from "@/lib/calculos";
+import type { RegistroDiario } from "@/lib/repositorios/registrosDiarios";
+import { buscarRegistroPorFechaAction, guardarRegistroDiarioAction } from "./actions";
+
+interface Props {
+  config: Configuracion;
+  fechaInicial: string;
+  registroInicial: RegistroDiario | null;
+}
+
+interface FormState {
+  fecha: string;
+  carneLlevada: string;
+  polloLlevada: string;
+  regalosCarne: string;
+  ingresoTotal: string;
+  montoCaja: string;
+  montoMonedas: string;
+  montoNu: string;
+  notas: string;
+}
+
+const formVacio = (fecha: string): FormState => ({
+  fecha,
+  carneLlevada: "",
+  polloLlevada: "",
+  regalosCarne: "",
+  ingresoTotal: "",
+  montoCaja: "",
+  montoMonedas: "",
+  montoNu: "",
+  notas: "",
+});
+
+function registroAFormState(fecha: string, registro: RegistroDiario | null): FormState {
+  if (!registro) return formVacio(fecha);
+  return {
+    fecha,
+    carneLlevada: String(registro.carne_llevada),
+    polloLlevada: String(registro.pollo_llevada),
+    regalosCarne: String(registro.regalos_carne),
+    ingresoTotal: String(registro.ingreso_total),
+    montoCaja: String(registro.monto_caja),
+    montoMonedas: String(registro.monto_monedas),
+    montoNu: String(registro.monto_nu),
+    notas: registro.notas ?? "",
+  };
+}
+
+function numero(valor: string): number {
+  const n = Number(valor);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function formatoPesos(valor: number): string {
+  return `$${Math.round(valor).toLocaleString("es-CO")}`;
+}
+
+export function RegistroDiarioForm({ config, fechaInicial, registroInicial }: Props) {
+  const [form, setForm] = useState<FormState>(() =>
+    registroAFormState(fechaInicial, registroInicial)
+  );
+  const [existeRegistro, setExisteRegistro] = useState(registroInicial !== null);
+  const [buscandoFecha, setBuscandoFecha] = useState(false);
+  const [mensaje, setMensaje] = useState<{ tipo: "ok" | "error"; texto: string } | null>(
+    null
+  );
+  const [guardando, startTransition] = useTransition();
+
+  const carneLlevada = numero(form.carneLlevada);
+  const polloLlevada = numero(form.polloLlevada);
+  const ingresoTotal = numero(form.ingresoTotal);
+  const montoCaja = numero(form.montoCaja);
+  const montoMonedas = numero(form.montoMonedas);
+  const montoNu = numero(form.montoNu);
+
+  const costoRecuperado = calcularCostoRecuperado(carneLlevada, polloLlevada, config);
+  const gastoOperativo = config.gasto_operativo_diario;
+  const utilidad = calcularUtilidad(ingresoTotal, costoRecuperado, gastoOperativo);
+  const bolsillosCuadran = sumaBolsillosCuadra(montoCaja, montoMonedas, montoNu, ingresoTotal);
+
+  function actualizarCampo<K extends keyof FormState>(campo: K, valor: FormState[K]) {
+    setForm((actual) => ({ ...actual, [campo]: valor }));
+  }
+
+  async function handleFechaChange(fecha: string) {
+    actualizarCampo("fecha", fecha);
+    setMensaje(null);
+    setBuscandoFecha(true);
+    try {
+      const registro = await buscarRegistroPorFechaAction(fecha);
+      setForm(registroAFormState(fecha, registro));
+      setExisteRegistro(registro !== null);
+    } finally {
+      setBuscandoFecha(false);
+    }
+  }
+
+  function handleSubmit(evento: FormEvent<HTMLFormElement>) {
+    evento.preventDefault();
+    setMensaje(null);
+
+    if (!bolsillosCuadran) {
+      setMensaje({
+        tipo: "error",
+        texto: "La suma de caja + monedas + nu debe ser igual al ingreso total.",
+      });
+      return;
+    }
+
+    startTransition(async () => {
+      const resultado = await guardarRegistroDiarioAction({
+        fecha: form.fecha,
+        carne_llevada: carneLlevada,
+        pollo_llevada: polloLlevada,
+        regalos_carne: numero(form.regalosCarne),
+        ingreso_total: ingresoTotal,
+        monto_caja: montoCaja,
+        monto_monedas: montoMonedas,
+        monto_nu: montoNu,
+        notas: form.notas.trim() === "" ? null : form.notas,
+      });
+
+      if (!resultado.ok) {
+        setMensaje({ tipo: "error", texto: resultado.error });
+        return;
+      }
+
+      setExisteRegistro(true);
+      setMensaje({
+        tipo: "ok",
+        texto: `Guardado — costo recuperado ${formatoPesos(
+          resultado.registro.costo_recuperado
+        )} · gasto operativo ${formatoPesos(
+          resultado.registro.gasto_operativo
+        )} · utilidad ${formatoPesos(resultado.registro.utilidad)}`,
+      });
+    });
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="flex flex-col gap-1 text-sm text-muted">
+          Fecha
+          <input
+            type="date"
+            required
+            value={form.fecha}
+            onChange={(e) => handleFechaChange(e.target.value)}
+            className="rounded-md border border-border bg-surface px-3 py-2 text-foreground"
+          />
+        </label>
+
+        <div className="flex items-end text-sm text-muted">
+          {buscandoFecha
+            ? "Buscando registro para esa fecha…"
+            : existeRegistro
+              ? "Editando el registro ya guardado de este día."
+              : "No hay registro guardado para este día todavía."}
+        </div>
+
+        <label className="flex flex-col gap-1 text-sm text-muted">
+          Carne llevada (unidades)
+          <input
+            type="number"
+            min="0"
+            required
+            value={form.carneLlevada}
+            onChange={(e) => actualizarCampo("carneLlevada", e.target.value)}
+            className="rounded-md border border-border bg-surface px-3 py-2 text-foreground"
+          />
+        </label>
+
+        <label className="flex flex-col gap-1 text-sm text-muted">
+          Pollo llevado (unidades)
+          <input
+            type="number"
+            min="0"
+            required
+            value={form.polloLlevada}
+            onChange={(e) => actualizarCampo("polloLlevada", e.target.value)}
+            className="rounded-md border border-border bg-surface px-3 py-2 text-foreground"
+          />
+        </label>
+
+        <label className="flex flex-col gap-1 text-sm text-muted">
+          Regalos de carne (informativo)
+          <input
+            type="number"
+            min="0"
+            value={form.regalosCarne}
+            onChange={(e) => actualizarCampo("regalosCarne", e.target.value)}
+            className="rounded-md border border-border bg-surface px-3 py-2 text-foreground"
+          />
+        </label>
+
+        <label className="flex flex-col gap-1 text-sm text-muted">
+          Ingreso total del día
+          <input
+            type="number"
+            min="0"
+            required
+            value={form.ingresoTotal}
+            onChange={(e) => actualizarCampo("ingresoTotal", e.target.value)}
+            className="rounded-md border border-border bg-surface px-3 py-2 text-foreground"
+          />
+        </label>
+      </div>
+
+      <fieldset className="flex flex-col gap-4 rounded-md border border-border p-4">
+        <legend className="px-1 text-sm text-muted">
+          Distribución del ingreso por bolsillo
+        </legend>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <label className="flex flex-col gap-1 text-sm text-muted">
+            Caja
+            <input
+              type="number"
+              min="0"
+              value={form.montoCaja}
+              onChange={(e) => actualizarCampo("montoCaja", e.target.value)}
+              className="rounded-md border border-border bg-surface px-3 py-2 text-foreground"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm text-muted">
+            Monedas
+            <input
+              type="number"
+              min="0"
+              value={form.montoMonedas}
+              onChange={(e) => actualizarCampo("montoMonedas", e.target.value)}
+              className="rounded-md border border-border bg-surface px-3 py-2 text-foreground"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm text-muted">
+            Nu
+            <input
+              type="number"
+              min="0"
+              value={form.montoNu}
+              onChange={(e) => actualizarCampo("montoNu", e.target.value)}
+              className="rounded-md border border-border bg-surface px-3 py-2 text-foreground"
+            />
+          </label>
+        </div>
+        {!bolsillosCuadran && (
+          <p className="text-sm text-warning">
+            La suma de los bolsillos ({formatoPesos(montoCaja + montoMonedas + montoNu)}) no
+            coincide con el ingreso total ({formatoPesos(ingresoTotal)}).
+          </p>
+        )}
+      </fieldset>
+
+      <label className="flex flex-col gap-1 text-sm text-muted">
+        Notas (opcional)
+        <textarea
+          value={form.notas}
+          onChange={(e) => actualizarCampo("notas", e.target.value)}
+          rows={2}
+          className="rounded-md border border-border bg-surface px-3 py-2 text-foreground"
+        />
+      </label>
+
+      <div className="rounded-md border border-border bg-surface p-4">
+        <h3 className="mb-3 text-sm font-medium text-muted">Vista previa del día</h3>
+        <dl className="grid grid-cols-3 gap-4 text-center">
+          <div>
+            <dt className="text-xs text-muted">Costo recuperado</dt>
+            <dd className="text-lg font-semibold text-foreground">
+              {formatoPesos(costoRecuperado)}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted">Gasto operativo</dt>
+            <dd className="text-lg font-semibold text-foreground">
+              {formatoPesos(gastoOperativo)}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted">Utilidad</dt>
+            <dd
+              className={`text-lg font-semibold ${
+                utilidad >= 0 ? "text-success" : "text-danger"
+              }`}
+            >
+              {formatoPesos(utilidad)}
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      {mensaje && (
+        <p className={mensaje.tipo === "ok" ? "text-sm text-success" : "text-sm text-danger"}>
+          {mensaje.texto}
+        </p>
+      )}
+
+      <button
+        type="submit"
+        disabled={guardando}
+        className="rounded-md bg-accent px-4 py-2 font-medium text-background disabled:opacity-60"
+      >
+        {guardando ? "Guardando…" : existeRegistro ? "Actualizar registro" : "Guardar registro"}
+      </button>
+    </form>
+  );
+}

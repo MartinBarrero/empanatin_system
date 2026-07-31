@@ -1,35 +1,59 @@
 // Módulo de cálculo compartido — ver Claude.md sección 3.3 y 8.
-// Se implementa en la Fase 2. Debe ser la única fuente de verdad para estos
-// cálculos (no duplicar esta lógica en componentes ni en route handlers).
+// Única fuente de verdad para estos cálculos: se usa tanto en el formulario
+// (vista previa en vivo) como en el guardado en el servidor.
 
-// export interface Configuracion {
-//   costoPaqueteCarne: number;
-//   costoPaquetePollo: number;
-//   unidadesPorPaquete: number;
-//   precioVentaCarne: number;
-//   precioVentaPollo: number;
-//   promo2xCarne: number;
-//   costoPaqueteSalsa: number;
-//   gastoOperativoDiario: number;
-// }
+export interface Configuracion {
+  id: number;
+  costo_paquete_carne: number;
+  costo_paquete_pollo: number;
+  unidades_por_paquete: number;
+  precio_venta_carne: number;
+  precio_venta_pollo: number;
+  promo_2x_carne: number;
+  costo_paquete_salsa: number;
+  gasto_operativo_diario: number;
+}
 
-// export interface CalculoRegistroDiario {
-//   costoRecuperado: number;
-//   gastoOperativo: number;
-//   utilidad: number;
-// }
+export function calcularCostoUnitario(
+  costoPaquete: number,
+  unidadesPorPaquete: number
+): number {
+  return costoPaquete / unidadesPorPaquete;
+}
 
-// Calcula costo_recuperado, gasto_operativo y utilidad del día a partir de
-// carne_llevada, pollo_llevada, ingreso_total y la configuración vigente.
-// export function calcularRegistroDiario(
-//   params: {
-//     carneLlevada: number;
-//     polloLlevada: number;
-//     ingresoTotal: number;
-//   },
-//   config: Configuracion
-// ): CalculoRegistroDiario {}
+export function calcularCostoRecuperado(
+  carneLlevada: number,
+  polloLlevada: number,
+  config: Configuracion
+): number {
+  const costoUnitCarne = calcularCostoUnitario(
+    config.costo_paquete_carne,
+    config.unidades_por_paquete
+  );
+  const costoUnitPollo = calcularCostoUnitario(
+    config.costo_paquete_pollo,
+    config.unidades_por_paquete
+  );
+  return carneLlevada * costoUnitCarne + polloLlevada * costoUnitPollo;
+}
 
-// Calcula el costo unitario de un tipo de empanada a partir del costo del
-// paquete y las unidades por paquete.
-// export function costoUnitario(costoPaquete: number, unidadesPorPaquete: number): number {}
+export function calcularUtilidad(
+  ingresoTotal: number,
+  costoRecuperado: number,
+  gastoOperativo: number
+): number {
+  return ingresoTotal - costoRecuperado - gastoOperativo;
+}
+
+// Verifica que la distribución entre bolsillos (caja/monedas/nu) coincida con
+// el ingreso total del día, con una tolerancia de redondeo de 1 peso.
+export function sumaBolsillosCuadra(
+  montoCaja: number,
+  montoMonedas: number,
+  montoNu: number,
+  ingresoTotal: number,
+  tolerancia = 1
+): boolean {
+  const suma = montoCaja + montoMonedas + montoNu;
+  return Math.abs(suma - ingresoTotal) <= tolerancia;
+}
