@@ -97,3 +97,13 @@ export async function guardarRegistroDiario(
   if (error) throw error;
   return data as RegistroDiario;
 }
+
+export async function listarRegistrosDiarios(client: SupabaseClient): Promise<RegistroDiario[]> {
+  const { data, error } = await client
+    .from("registros_diarios")
+    .select("*")
+    .order("fecha", { ascending: true });
+
+  if (error) throw error;
+  return (data ?? []) as RegistroDiario[];
+}

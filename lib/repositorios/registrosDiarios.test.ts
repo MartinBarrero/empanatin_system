@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Configuracion } from "../calculos";
 import {
   guardarRegistroDiario,
+  listarRegistrosDiarios,
   obtenerConfiguracionVigente,
   obtenerRegistroPorFecha,
   type RegistroDiarioInput,
@@ -17,6 +18,7 @@ function createFakeClient(options: {
   configuracion?: FakeResult<Configuracion>;
   registroPorFecha?: FakeResult<unknown>;
   upsertResult?: FakeResult<unknown>;
+  listResult?: FakeResult<unknown>;
 }) {
   const fromCalls: string[] = [];
   let upsertPayload: unknown = null;
@@ -42,6 +44,7 @@ function createFakeClient(options: {
             eq: () => ({
               maybeSingle: async () => options.registroPorFecha,
             }),
+            order: () => options.listResult,
           }),
           upsert: (payload: unknown, upsertOpts: unknown) => {
             upsertPayload = payload;
@@ -179,5 +182,16 @@ describe("guardarRegistroDiario", () => {
     await guardarRegistroDiario(client, inputValido);
 
     expect(getUpsertOptions()).toMatchObject({ onConflict: "fecha" });
+  });
+});
+
+describe("listarRegistrosDiarios", () => {
+  test("retorna todos los registros ordenados por fecha ascendente", async () => {
+    const lista = [{ fecha: "2026-07-27" }, { fecha: "2026-07-28" }];
+    const { client } = createFakeClient({ listResult: { data: lista, error: null } });
+
+    const resultado = await listarRegistrosDiarios(client);
+
+    expect(resultado).toEqual(lista);
   });
 });
