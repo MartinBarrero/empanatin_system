@@ -22,7 +22,7 @@ interface FormState {
   polloLlevada: string;
   regalosCarne: string;
   ingresoTotal: string;
-  montoCaja: string;
+  montoBilletera: string;
   montoMonedas: string;
   montoNu: string;
   notas: string;
@@ -34,7 +34,7 @@ const formVacio = (fecha: string): FormState => ({
   polloLlevada: "",
   regalosCarne: "",
   ingresoTotal: "",
-  montoCaja: "",
+  montoBilletera: "",
   montoMonedas: "",
   montoNu: "",
   notas: "",
@@ -48,7 +48,7 @@ function registroAFormState(fecha: string, registro: RegistroDiario | null): For
     polloLlevada: String(registro.pollo_llevada),
     regalosCarne: String(registro.regalos_carne),
     ingresoTotal: String(registro.ingreso_total),
-    montoCaja: String(registro.monto_caja),
+    montoBilletera: String(registro.monto_billetera),
     montoMonedas: String(registro.monto_monedas),
     montoNu: String(registro.monto_nu),
     notas: registro.notas ?? "",
@@ -78,14 +78,14 @@ export function RegistroDiarioForm({ config, fechaInicial, registroInicial }: Pr
   const carneLlevada = numero(form.carneLlevada);
   const polloLlevada = numero(form.polloLlevada);
   const ingresoTotal = numero(form.ingresoTotal);
-  const montoCaja = numero(form.montoCaja);
+  const montoBilletera = numero(form.montoBilletera);
   const montoMonedas = numero(form.montoMonedas);
   const montoNu = numero(form.montoNu);
 
   const costoRecuperado = calcularCostoRecuperado(carneLlevada, polloLlevada, config);
   const gastoOperativo = config.gasto_operativo_diario;
   const utilidad = calcularUtilidad(ingresoTotal, costoRecuperado, gastoOperativo);
-  const bolsillosCuadran = sumaBolsillosCuadra(montoCaja, montoMonedas, montoNu, ingresoTotal);
+  const bolsillosCuadran = sumaBolsillosCuadra(montoBilletera, montoMonedas, montoNu, ingresoTotal);
 
   function actualizarCampo<K extends keyof FormState>(campo: K, valor: FormState[K]) {
     setForm((actual) => ({ ...actual, [campo]: valor }));
@@ -111,7 +111,7 @@ export function RegistroDiarioForm({ config, fechaInicial, registroInicial }: Pr
     if (!bolsillosCuadran) {
       setMensaje({
         tipo: "error",
-        texto: "La suma de caja + monedas + nu debe ser igual al ingreso total.",
+        texto: "La suma de billetera + monedas + nu debe ser igual al ingreso total.",
       });
       return;
     }
@@ -123,7 +123,7 @@ export function RegistroDiarioForm({ config, fechaInicial, registroInicial }: Pr
         pollo_llevada: polloLlevada,
         regalos_carne: numero(form.regalosCarne),
         ingreso_total: ingresoTotal,
-        monto_caja: montoCaja,
+        monto_billetera: montoBilletera,
         monto_monedas: montoMonedas,
         monto_nu: montoNu,
         notas: form.notas.trim() === "" ? null : form.notas,
@@ -222,12 +222,12 @@ export function RegistroDiarioForm({ config, fechaInicial, registroInicial }: Pr
         </legend>
         <div className="grid gap-4 sm:grid-cols-3">
           <label className="flex flex-col gap-1 text-sm text-muted">
-            Caja
+            Billetera
             <input
               type="number"
               min="0"
-              value={form.montoCaja}
-              onChange={(e) => actualizarCampo("montoCaja", e.target.value)}
+              value={form.montoBilletera}
+              onChange={(e) => actualizarCampo("montoBilletera", e.target.value)}
               className="rounded-md border border-border bg-surface px-3 py-2 text-foreground"
             />
           </label>
@@ -254,7 +254,7 @@ export function RegistroDiarioForm({ config, fechaInicial, registroInicial }: Pr
         </div>
         {!bolsillosCuadran && (
           <p className="text-sm text-warning">
-            La suma de los bolsillos ({formatoPesos(montoCaja + montoMonedas + montoNu)}) no
+            La suma de los bolsillos ({formatoPesos(montoBilletera + montoMonedas + montoNu)}) no
             coincide con el ingreso total ({formatoPesos(ingresoTotal)}).
           </p>
         )}
