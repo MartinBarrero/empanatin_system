@@ -45,15 +45,10 @@ export function calcularUtilidad(
   return ingresoTotal - costoRecuperado - gastoOperativo;
 }
 
-// Verifica que la distribución entre bolsillos (caja/monedas/nu) coincida con
-// el ingreso total del día, con una tolerancia de redondeo de 1 peso.
-export function sumaBolsillosCuadra(
-  montoCaja: number,
+export function calcularIngresoTotal(
+  montoBilletera: number,
   montoMonedas: number,
-  montoNu: number,
-  ingresoTotal: number,
-  tolerancia = 1
-): boolean {
-  const suma = montoCaja + montoMonedas + montoNu;
-  return Math.abs(suma - ingresoTotal) <= tolerancia;
+  montoNu: number
+): number {
+  return montoBilletera + montoMonedas + montoNu;
 }

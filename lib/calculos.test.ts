@@ -2,8 +2,8 @@ import { describe, expect, test } from "vitest";
 import {
   calcularCostoRecuperado,
   calcularCostoUnitario,
+  calcularIngresoTotal,
   calcularUtilidad,
-  sumaBolsillosCuadra,
   type Configuracion,
 } from "./calculos";
 
@@ -73,20 +73,16 @@ describe("calcularUtilidad", () => {
   });
 });
 
-describe("sumaBolsillosCuadra", () => {
-  test("acepta cuando los tres bolsillos suman exactamente el ingreso total", () => {
-    expect(sumaBolsillosCuadra(30000, 20000, 20000, 70000)).toBe(true);
+describe("calcularIngresoTotal", () => {
+  test("suma los tres bolsillos", () => {
+    expect(calcularIngresoTotal(30000, 20000, 20000)).toBe(70000);
   });
 
-  test("rechaza cuando la suma no coincide con el ingreso total", () => {
-    expect(sumaBolsillosCuadra(30000, 20000, 10000, 70000)).toBe(false);
+  test("funciona con montos en cero", () => {
+    expect(calcularIngresoTotal(0, 0, 0)).toBe(0);
   });
 
-  test("acepta diferencias de hasta 1 peso por redondeo", () => {
-    expect(sumaBolsillosCuadra(30000.5, 20000, 20000, 70000.4)).toBe(true);
-  });
-
-  test("rechaza diferencias mayores a 1 peso", () => {
-    expect(sumaBolsillosCuadra(30000, 20000, 20000, 70001.5)).toBe(false);
+  test("funciona cuando solo un bolsillo tiene monto", () => {
+    expect(calcularIngresoTotal(70000, 0, 0)).toBe(70000);
   });
 });
