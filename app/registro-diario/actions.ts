@@ -2,7 +2,6 @@
 
 import { supabase } from "@/lib/supabase";
 import {
-  DistribucionBolsillosInvalidaError,
   guardarRegistroDiario,
   obtenerRegistroPorFecha,
   type RegistroDiario,
@@ -20,9 +19,6 @@ export async function guardarRegistroDiarioAction(
     const registro = await guardarRegistroDiario(supabase, input);
     return { ok: true, registro };
   } catch (error) {
-    if (error instanceof DistribucionBolsillosInvalidaError) {
-      return { ok: false, error: error.message };
-    }
     console.error("Error al guardar el registro diario:", error);
     return {
       ok: false,

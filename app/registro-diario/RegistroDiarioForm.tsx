@@ -3,8 +3,8 @@
 import { useState, useTransition, type FormEvent } from "react";
 import {
   calcularCostoRecuperado,
+  calcularIngresoTotal,
   calcularUtilidad,
-  sumaBolsillosCuadra,
   type Configuracion,
 } from "@/lib/calculos";
 import type { RegistroDiario } from "@/lib/repositorios/registrosDiarios";
@@ -21,7 +21,6 @@ interface FormState {
   carneLlevada: string;
   polloLlevada: string;
   regalosCarne: string;
-  ingresoTotal: string;
   montoBilletera: string;
   montoMonedas: string;
   montoNu: string;
@@ -33,7 +32,6 @@ const formVacio = (fecha: string): FormState => ({
   carneLlevada: "",
   polloLlevada: "",
   regalosCarne: "",
-  ingresoTotal: "",
   montoBilletera: "",
   montoMonedas: "",
   montoNu: "",
@@ -47,7 +45,6 @@ function registroAFormState(fecha: string, registro: RegistroDiario | null): For
     carneLlevada: String(registro.carne_llevada),
     polloLlevada: String(registro.pollo_llevada),
     regalosCarne: String(registro.regalos_carne),
-    ingresoTotal: String(registro.ingreso_total),
     montoBilletera: String(registro.monto_billetera),
     montoMonedas: String(registro.monto_monedas),
     montoNu: String(registro.monto_nu),
@@ -77,15 +74,14 @@ export function RegistroDiarioForm({ config, fechaInicial, registroInicial }: Pr
 
   const carneLlevada = numero(form.carneLlevada);
   const polloLlevada = numero(form.polloLlevada);
-  const ingresoTotal = numero(form.ingresoTotal);
   const montoBilletera = numero(form.montoBilletera);
   const montoMonedas = numero(form.montoMonedas);
   const montoNu = numero(form.montoNu);
 
+  const ingresoTotal = calcularIngresoTotal(montoBilletera, montoMonedas, montoNu);
   const costoRecuperado = calcularCostoRecuperado(carneLlevada, polloLlevada, config);
   const gastoOperativo = config.gasto_operativo_diario;
   const utilidad = calcularUtilidad(ingresoTotal, costoRecuperado, gastoOperativo);
-  const bolsillosCuadran = sumaBolsillosCuadra(montoBilletera, montoMonedas, montoNu, ingresoTotal);
 
   function actualizarCampo<K extends keyof FormState>(campo: K, valor: FormState[K]) {
     setForm((actual) => ({ ...actual, [campo]: valor }));
@@ -108,21 +104,12 @@ export function RegistroDiarioForm({ config, fechaInicial, registroInicial }: Pr
     evento.preventDefault();
     setMensaje(null);
 
-    if (!bolsillosCuadran) {
-      setMensaje({
-        tipo: "error",
-        texto: "La suma de billetera + monedas + nu debe ser igual al ingreso total.",
-      });
-      return;
-    }
-
     startTransition(async () => {
       const resultado = await guardarRegistroDiarioAction({
         fecha: form.fecha,
         carne_llevada: carneLlevada,
         pollo_llevada: polloLlevada,
         regalos_carne: numero(form.regalosCarne),
-        ingreso_total: ingresoTotal,
         monto_billetera: montoBilletera,
         monto_monedas: montoMonedas,
         monto_nu: montoNu,
@@ -137,7 +124,9 @@ export function RegistroDiarioForm({ config, fechaInicial, registroInicial }: Pr
       setExisteRegistro(true);
       setMensaje({
         tipo: "ok",
-        texto: `Guardado — costo recuperado ${formatoPesos(
+        texto: `Guardado — ingreso total ${formatoPesos(
+          resultado.registro.ingreso_total
+        )} · costo recuperado ${formatoPesos(
           resultado.registro.costo_recuperado
         )} · gasto operativo ${formatoPesos(
           resultado.registro.gasto_operativo
@@ -202,18 +191,6 @@ export function RegistroDiarioForm({ config, fechaInicial, registroInicial }: Pr
             className="rounded-md border border-border bg-surface px-3 py-2 text-foreground"
           />
         </label>
-
-        <label className="flex flex-col gap-1 text-sm text-muted">
-          Ingreso total del día
-          <input
-            type="number"
-            min="0"
-            required
-            value={form.ingresoTotal}
-            onChange={(e) => actualizarCampo("ingresoTotal", e.target.value)}
-            className="rounded-md border border-border bg-surface px-3 py-2 text-foreground"
-          />
-        </label>
       </div>
 
       <fieldset className="flex flex-col gap-4 rounded-md border border-border p-4">
@@ -252,12 +229,9 @@ export function RegistroDiarioForm({ config, fechaInicial, registroInicial }: Pr
             />
           </label>
         </div>
-        {!bolsillosCuadran && (
-          <p className="text-sm text-warning">
-            La suma de los bolsillos ({formatoPesos(montoBilletera + montoMonedas + montoNu)}) no
-            coincide con el ingreso total ({formatoPesos(ingresoTotal)}).
-          </p>
-        )}
+        <p className="text-sm text-muted">
+          Ingreso total (calculado): <span className="font-semibold text-foreground">{formatoPesos(ingresoTotal)}</span>
+        </p>
       </fieldset>
 
       <label className="flex flex-col gap-1 text-sm text-muted">
