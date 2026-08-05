@@ -71,14 +71,14 @@ export function FiadosPanel({ fiadosIniciales }: Props) {
 
   return (
     <div className="flex flex-col gap-8">
-      <form onSubmit={handleCrear} className="grid gap-4 rounded-md border border-border bg-surface p-4 sm:grid-cols-4">
+      <form onSubmit={handleCrear} className="grid gap-4 rounded-2xl border border-border/70 bg-surface p-5 shadow-lg shadow-black/20 sm:grid-cols-4">
         <label className="flex flex-col gap-1 text-sm text-muted">
           Nombre
           <input
             required
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
-            className="rounded-md border border-border bg-background px-3 py-2 text-foreground"
+            className="rounded-lg border border-border bg-background px-3 py-2 text-foreground transition focus:border-accent"
           />
         </label>
         <label className="flex flex-col gap-1 text-sm text-muted">
@@ -88,7 +88,7 @@ export function FiadosPanel({ fiadosIniciales }: Props) {
             min="0"
             value={cantidad}
             onChange={(e) => setCantidad(e.target.value)}
-            className="rounded-md border border-border bg-background px-3 py-2 text-foreground"
+            className="rounded-lg border border-border bg-background px-3 py-2 text-foreground transition focus:border-accent"
           />
         </label>
         <label className="flex flex-col gap-1 text-sm text-muted">
@@ -99,13 +99,13 @@ export function FiadosPanel({ fiadosIniciales }: Props) {
             required
             value={monto}
             onChange={(e) => setMonto(e.target.value)}
-            className="rounded-md border border-border bg-background px-3 py-2 text-foreground"
+            className="rounded-lg border border-border bg-background px-3 py-2 text-foreground transition focus:border-accent"
           />
         </label>
         <button
           type="submit"
           disabled={guardando}
-          className="self-end rounded-md bg-accent px-4 py-2 font-medium text-background disabled:opacity-60"
+          className="self-end rounded-xl bg-accent px-5 py-2.5 font-semibold text-background shadow-glow-sm transition hover:opacity-90 disabled:opacity-60"
         >
           {guardando ? "Guardando…" : "Registrar fiado"}
         </button>
@@ -124,7 +124,7 @@ export function FiadosPanel({ fiadosIniciales }: Props) {
           {pendientes.map((fiado) => (
             <li
               key={fiado.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border bg-surface p-4"
+              className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/70 bg-surface p-4 shadow-lg shadow-black/20"
             >
               <div>
                 <p className="font-medium text-foreground">{fiado.nombre_persona}</p>
@@ -141,13 +141,13 @@ export function FiadosPanel({ fiadosIniciales }: Props) {
                   onChange={(e) =>
                     setMontosAbono((actual) => ({ ...actual, [fiado.id]: e.target.value }))
                   }
-                  className="w-28 rounded-md border border-border bg-background px-3 py-2 text-foreground"
+                  className="w-28 rounded-lg border border-border bg-background px-3 py-2 text-foreground transition focus:border-accent"
                 />
                 <button
                   type="button"
                   disabled={guardando}
                   onClick={() => handleAbono(fiado.id)}
-                  className="rounded-md border border-accent px-3 py-2 text-sm text-accent disabled:opacity-60"
+                  className="rounded-lg border border-accent px-3 py-2 text-sm text-accent transition hover:bg-accent/10 disabled:opacity-60"
                 >
                   Abonar
                 </button>
@@ -164,7 +164,7 @@ export function FiadosPanel({ fiadosIniciales }: Props) {
           {pagados.map((fiado) => (
             <li
               key={fiado.id}
-              className="flex items-center justify-between gap-3 rounded-md border border-border bg-surface p-4"
+              className="flex items-center justify-between gap-3 rounded-2xl border border-border/70 bg-surface p-4 shadow-lg shadow-black/20"
             >
               <p className="font-medium text-foreground">{fiado.nombre_persona}</p>
               <p className="text-sm text-success">

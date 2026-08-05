@@ -64,13 +64,13 @@ export function CompraMercanciaPanel({ comprasIniciales, config }: Props) {
 
   return (
     <div className="flex flex-col gap-8">
-      <form onSubmit={handleSubmit} className="grid gap-4 rounded-md border border-border bg-surface p-4 sm:grid-cols-4">
+      <form onSubmit={handleSubmit} className="grid gap-4 rounded-2xl border border-border/70 bg-surface p-5 shadow-lg shadow-black/20 sm:grid-cols-4">
         <label className="flex flex-col gap-1 text-sm text-muted">
           Tipo
           <select
             value={tipo}
             onChange={(e) => setTipo(e.target.value as TipoMercancia)}
-            className="rounded-md border border-border bg-background px-3 py-2 text-foreground"
+            className="rounded-lg border border-border bg-background px-3 py-2 text-foreground transition focus:border-accent"
           >
             <option value="carne">Carne</option>
             <option value="pollo">Pollo</option>
@@ -84,7 +84,7 @@ export function CompraMercanciaPanel({ comprasIniciales, config }: Props) {
             min="1"
             value={cantidadPaquetes}
             onChange={(e) => setCantidadPaquetes(e.target.value)}
-            className="rounded-md border border-border bg-background px-3 py-2 text-foreground"
+            className="rounded-lg border border-border bg-background px-3 py-2 text-foreground transition focus:border-accent"
           />
         </label>
         <label className="flex flex-col gap-1 text-sm text-muted">
@@ -95,13 +95,13 @@ export function CompraMercanciaPanel({ comprasIniciales, config }: Props) {
             placeholder={String(sugerido)}
             value={costoTotal}
             onChange={(e) => setCostoTotal(e.target.value)}
-            className="rounded-md border border-border bg-background px-3 py-2 text-foreground"
+            className="rounded-lg border border-border bg-background px-3 py-2 text-foreground transition focus:border-accent"
           />
         </label>
         <button
           type="submit"
           disabled={guardando}
-          className="self-end rounded-md bg-accent px-4 py-2 font-medium text-background disabled:opacity-60"
+          className="self-end rounded-xl bg-accent px-5 py-2.5 font-semibold text-background shadow-glow-sm transition hover:opacity-90 disabled:opacity-60"
         >
           {guardando ? "Guardando…" : "Registrar compra"}
         </button>
@@ -120,7 +120,7 @@ export function CompraMercanciaPanel({ comprasIniciales, config }: Props) {
           {compras.map((compra) => (
             <li
               key={compra.id}
-              className="flex items-center justify-between rounded-md border border-border bg-surface p-3 text-sm"
+              className="flex items-center justify-between rounded-xl border border-border/70 bg-surface p-3 text-sm shadow-lg shadow-black/20"
             >
               <span className="text-foreground">
                 {compra.fecha} — {compra.tipo} × {compra.cantidad_paquetes} paquetes

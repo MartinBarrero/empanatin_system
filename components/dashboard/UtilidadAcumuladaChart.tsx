@@ -9,7 +9,7 @@ interface Props {
 
 export function UtilidadAcumuladaChart({ serie }: Props) {
   return (
-    <div className="rounded-md border border-border bg-surface p-4">
+    <div className="rounded-2xl border border-border/70 bg-surface p-5 shadow-lg shadow-black/20">
       <h3 className="mb-4 text-sm font-medium text-muted">Utilidad acumulada</h3>
       <ResponsiveContainer width="100%" height={240}>
         <LineChart data={serie}>

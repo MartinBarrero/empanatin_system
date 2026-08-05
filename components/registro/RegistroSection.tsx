@@ -1,5 +1,7 @@
+import { ClipboardList } from "lucide-react";
 import type { Configuracion } from "@/lib/calculos";
 import type { RegistroDiario } from "@/lib/repositorios/registrosDiarios";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 import { RegistroDiarioForm } from "./RegistroDiarioForm";
 import { VentasSemanaChart } from "./VentasSemanaChart";
 
@@ -12,7 +14,11 @@ interface Props {
 export function RegistroSection({ config, fechaInicial, registroInicial }: Props) {
   return (
     <section id="registro" className="mx-auto max-w-6xl px-6 py-16">
-      <h2 className="mb-8 font-serif text-3xl font-bold text-foreground">Registro diario</h2>
+      <SectionHeading
+        icon={ClipboardList}
+        title="Registro diario"
+        description="Ingresa lo que llevaste hoy y ve la utilidad calculada al instante."
+      />
       <div className="grid gap-8 lg:grid-cols-2">
         <RegistroDiarioForm
           config={config}

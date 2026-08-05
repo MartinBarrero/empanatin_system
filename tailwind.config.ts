@@ -25,6 +25,10 @@ const config: Config = {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
         serif: ["var(--font-playfair)", "Georgia", "serif"],
       },
+      boxShadow: {
+        glow: "0 0 60px -10px rgba(242, 194, 48, 0.45)",
+        "glow-sm": "0 0 24px -6px rgba(242, 194, 48, 0.5)",
+      },
     },
   },
   plugins: [],

@@ -1,3 +1,4 @@
+import { LayoutDashboard } from "lucide-react";
 import type { RegistroDiario } from "@/lib/repositorios/registrosDiarios";
 import type { Fiado } from "@/lib/repositorios/fiados";
 import type { StockActual } from "@/lib/repositorios/inventario";
@@ -7,6 +8,7 @@ import {
   calcularTotalesPorPeriodo,
   calcularUtilidadAcumulada,
 } from "@/lib/dashboard";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 import { UtilidadAcumuladaChart } from "./UtilidadAcumuladaChart";
 
 interface Props {
@@ -48,11 +50,18 @@ export function DashboardSection({ registros, fiados, stock, capital, bolsillos 
 
   return (
     <section id="dashboard" className="mx-auto max-w-6xl px-6 py-16">
-      <h2 className="mb-8 font-serif text-3xl font-bold text-foreground">Dashboard</h2>
+      <SectionHeading
+        icon={LayoutDashboard}
+        title="Dashboard"
+        description="Totales del día, la semana y el mes, en un vistazo."
+      />
 
       <div className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {tarjetas.map((tarjeta) => (
-          <div key={tarjeta.titulo} className="rounded-md border border-border bg-surface p-4">
+          <div
+            key={tarjeta.titulo}
+            className="rounded-2xl border border-border/70 bg-surface p-4 shadow-lg shadow-black/20 transition hover:border-accent/40"
+          >
             <p className="text-xs text-muted">{tarjeta.titulo}</p>
             <p
               className={`mt-1 text-xl font-semibold ${
@@ -70,7 +79,7 @@ export function DashboardSection({ registros, fiados, stock, capital, bolsillos 
       </div>
 
       <div className="grid gap-8 lg:grid-cols-2">
-        <div className="rounded-md border border-border bg-surface p-4">
+        <div className="rounded-2xl border border-border/70 bg-surface p-5 shadow-lg shadow-black/20">
           <h3 className="mb-4 text-sm font-medium text-muted">Carne vs. pollo (unidades llevadas)</h3>
           <dl className="grid grid-cols-2 gap-4 text-center">
             <div>

@@ -25,10 +25,10 @@ export default function RootLayout({
   return (
     <html lang="es" className={`dark ${inter.variable} ${playfair.variable}`}>
       <body className="min-h-screen bg-background font-sans text-foreground antialiased">
-        <header className="border-b border-border bg-surface px-6 py-4 text-center">
-          <h1 className="text-lg font-semibold text-foreground">
+        <header className="sticky top-0 z-50 border-b border-border/80 bg-background/85 py-5 text-center backdrop-blur">
+          <a href="#hero" className="font-serif text-2xl font-bold tracking-tight text-foreground">
             Empana<span className="text-accent">tin</span>
-          </h1>
+          </a>
         </header>
         <main>{children}</main>
       </body>

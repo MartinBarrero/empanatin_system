@@ -1,6 +1,8 @@
+import { Package } from "lucide-react";
 import type { StockActual } from "@/lib/repositorios/inventario";
 import type { CompraMercancia } from "@/lib/repositorios/comprasMercancia";
 import type { Configuracion } from "@/lib/calculos";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 import { CompraMercanciaPanel } from "./CompraMercanciaPanel";
 
 interface Props {
@@ -12,14 +14,18 @@ interface Props {
 export function StockSection({ stock, compras, config }: Props) {
   return (
     <section id="stock" className="mx-auto max-w-4xl px-6 py-16">
-      <h2 className="mb-8 font-serif text-3xl font-bold text-foreground">Stock y compras de mercancía</h2>
+      <SectionHeading
+        icon={Package}
+        title="Stock y compras de mercancía"
+        description="Inventario calculado y registro de compras."
+      />
 
       <div className="mb-8 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-md border border-border bg-surface p-4 text-center">
+        <div className="rounded-2xl border border-border/70 bg-surface p-4 text-center shadow-lg shadow-black/20">
           <p className="text-xs text-muted">Stock de carne</p>
           <p className="mt-1 text-2xl font-semibold text-accent">{stock.carne} unidades</p>
         </div>
-        <div className="rounded-md border border-border bg-surface p-4 text-center">
+        <div className="rounded-2xl border border-border/70 bg-surface p-4 text-center shadow-lg shadow-black/20">
           <p className="text-xs text-muted">Stock de pollo</p>
           <p className="mt-1 text-2xl font-semibold text-success">{stock.pollo} unidades</p>
         </div>

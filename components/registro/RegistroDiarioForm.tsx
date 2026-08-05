@@ -148,7 +148,7 @@ export function RegistroDiarioForm({ config, fechaInicial, registroInicial }: Pr
             required
             value={form.fecha}
             onChange={(e) => handleFechaChange(e.target.value)}
-            className="rounded-md border border-border bg-surface px-3 py-2 text-foreground"
+            className="rounded-lg border border-border bg-surface px-3 py-2 text-foreground transition focus:border-accent"
           />
         </label>
 
@@ -168,7 +168,7 @@ export function RegistroDiarioForm({ config, fechaInicial, registroInicial }: Pr
             required
             value={form.carneLlevada}
             onChange={(e) => actualizarCampo("carneLlevada", e.target.value)}
-            className="rounded-md border border-border bg-surface px-3 py-2 text-foreground"
+            className="rounded-lg border border-border bg-surface px-3 py-2 text-foreground transition focus:border-accent"
           />
         </label>
 
@@ -180,7 +180,7 @@ export function RegistroDiarioForm({ config, fechaInicial, registroInicial }: Pr
             required
             value={form.polloLlevada}
             onChange={(e) => actualizarCampo("polloLlevada", e.target.value)}
-            className="rounded-md border border-border bg-surface px-3 py-2 text-foreground"
+            className="rounded-lg border border-border bg-surface px-3 py-2 text-foreground transition focus:border-accent"
           />
         </label>
 
@@ -191,12 +191,12 @@ export function RegistroDiarioForm({ config, fechaInicial, registroInicial }: Pr
             min="0"
             value={form.regalosCarne}
             onChange={(e) => actualizarCampo("regalosCarne", e.target.value)}
-            className="rounded-md border border-border bg-surface px-3 py-2 text-foreground"
+            className="rounded-lg border border-border bg-surface px-3 py-2 text-foreground transition focus:border-accent"
           />
         </label>
       </div>
 
-      <fieldset className="flex flex-col gap-4 rounded-md border border-border p-4">
+      <fieldset className="flex flex-col gap-4 rounded-2xl border border-border p-5">
         <legend className="px-1 text-sm text-muted">
           Distribución del ingreso por bolsillo
         </legend>
@@ -208,7 +208,7 @@ export function RegistroDiarioForm({ config, fechaInicial, registroInicial }: Pr
               min="0"
               value={form.montoBilletera}
               onChange={(e) => actualizarCampo("montoBilletera", e.target.value)}
-              className="rounded-md border border-border bg-surface px-3 py-2 text-foreground"
+              className="rounded-lg border border-border bg-surface px-3 py-2 text-foreground transition focus:border-accent"
             />
           </label>
           <label className="flex flex-col gap-1 text-sm text-muted">
@@ -218,7 +218,7 @@ export function RegistroDiarioForm({ config, fechaInicial, registroInicial }: Pr
               min="0"
               value={form.montoMonedas}
               onChange={(e) => actualizarCampo("montoMonedas", e.target.value)}
-              className="rounded-md border border-border bg-surface px-3 py-2 text-foreground"
+              className="rounded-lg border border-border bg-surface px-3 py-2 text-foreground transition focus:border-accent"
             />
           </label>
           <label className="flex flex-col gap-1 text-sm text-muted">
@@ -228,7 +228,7 @@ export function RegistroDiarioForm({ config, fechaInicial, registroInicial }: Pr
               min="0"
               value={form.montoNu}
               onChange={(e) => actualizarCampo("montoNu", e.target.value)}
-              className="rounded-md border border-border bg-surface px-3 py-2 text-foreground"
+              className="rounded-lg border border-border bg-surface px-3 py-2 text-foreground transition focus:border-accent"
             />
           </label>
         </div>
@@ -247,7 +247,7 @@ export function RegistroDiarioForm({ config, fechaInicial, registroInicial }: Pr
         />
       </label>
 
-      <div className="rounded-md border border-border bg-surface p-4">
+      <div className="rounded-2xl border border-border/70 bg-surface p-5 shadow-lg shadow-black/20">
         <h3 className="mb-3 text-sm font-medium text-muted">Vista previa del día</h3>
         <dl className="grid grid-cols-3 gap-4 text-center">
           <div>
@@ -284,7 +284,7 @@ export function RegistroDiarioForm({ config, fechaInicial, registroInicial }: Pr
       <button
         type="submit"
         disabled={guardando}
-        className="rounded-md bg-accent px-4 py-2 font-medium text-background disabled:opacity-60"
+        className="rounded-xl bg-accent px-5 py-2.5 font-semibold text-background shadow-glow-sm transition hover:opacity-90 disabled:opacity-60"
       >
         {guardando ? "Guardando…" : existeRegistro ? "Actualizar registro" : "Guardar registro"}
       </button>
