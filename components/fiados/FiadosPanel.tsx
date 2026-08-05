@@ -17,7 +17,6 @@ export function FiadosPanel({ fiadosIniciales }: Props) {
   const router = useRouter();
   const [fiados, setFiados] = useState(fiadosIniciales);
   const [nombre, setNombre] = useState("");
-  const [cantidad, setCantidad] = useState("");
   const [monto, setMonto] = useState("");
   const [montosAbono, setMontosAbono] = useState<Record<string, string>>({});
   const [mensaje, setMensaje] = useState<{ tipo: "ok" | "error"; texto: string } | null>(null);
@@ -30,7 +29,7 @@ export function FiadosPanel({ fiadosIniciales }: Props) {
       const resultado = await crearFiadoAction({
         fecha_creacion: new Date().toISOString().slice(0, 10),
         nombre_persona: nombre,
-        cantidad_empanadas: cantidad.trim() === "" ? null : Number(cantidad),
+        cantidad_empanadas: null,
         monto: Number(monto),
       });
 
@@ -41,7 +40,6 @@ export function FiadosPanel({ fiadosIniciales }: Props) {
 
       setFiados((actual) => [resultado.fiado, ...actual]);
       setNombre("");
-      setCantidad("");
       setMonto("");
       router.refresh();
     });
@@ -71,23 +69,13 @@ export function FiadosPanel({ fiadosIniciales }: Props) {
 
   return (
     <div className="flex flex-col gap-8">
-      <form onSubmit={handleCrear} className="grid gap-4 rounded-2xl border border-border/70 bg-surface p-5 shadow-lg shadow-black/20 sm:grid-cols-4">
+      <form onSubmit={handleCrear} className="grid gap-4 rounded-2xl border border-border/70 bg-surface p-5 shadow-lg shadow-black/20 sm:grid-cols-3">
         <label className="flex flex-col gap-1 text-sm text-muted">
           Nombre
           <input
             required
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
-            className="rounded-lg border border-border bg-background px-3 py-2 text-foreground transition focus:border-accent"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-sm text-muted">
-          Empanadas (opcional)
-          <input
-            type="number"
-            min="0"
-            value={cantidad}
-            onChange={(e) => setCantidad(e.target.value)}
             className="rounded-lg border border-border bg-background px-3 py-2 text-foreground transition focus:border-accent"
           />
         </label>
