@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Configuracion } from "../calculos";
-import { crearCompra, listarCompras } from "./comprasMercancia";
+import { actualizarCompra, crearCompra, eliminarCompra, listarCompras } from "./comprasMercancia";
 
 interface FakeResult<T> {
   data: T | null;
@@ -12,8 +12,12 @@ function createFakeClient(options: {
   configuracion?: FakeResult<Configuracion>;
   insertResult?: FakeResult<unknown>;
   listResult?: FakeResult<unknown>;
+  updateResult?: FakeResult<unknown>;
+  deleteResult?: { error: { message: string } | null };
 }) {
   let insertPayload: unknown = null;
+  let updatePayload: unknown = null;
+  let idEliminado: string | null = null;
 
   const client = {
     from(table: string) {
@@ -31,13 +35,32 @@ function createFakeClient(options: {
           select: () => ({
             order: () => options.listResult,
           }),
+          update: (payload: unknown) => {
+            updatePayload = payload;
+            return {
+              eq: () => ({
+                select: () => ({ single: async () => options.updateResult }),
+              }),
+            };
+          },
+          delete: () => ({
+            eq: async (_col: string, val: string) => {
+              idEliminado = val;
+              return options.deleteResult ?? { error: null };
+            },
+          }),
         };
       }
       throw new Error(`Tabla inesperada: ${table}`);
     },
   };
 
-  return { client: client as unknown as SupabaseClient, getInsertPayload: () => insertPayload };
+  return {
+    client: client as unknown as SupabaseClient,
+    getInsertPayload: () => insertPayload,
+    getUpdatePayload: () => updatePayload,
+    getIdEliminado: () => idEliminado,
+  };
 }
 
 const configPorDefecto: Configuracion = {
@@ -148,5 +171,64 @@ describe("listarCompras", () => {
     const resultado = await listarCompras(client);
 
     expect(resultado).toEqual(lista);
+  });
+});
+
+describe("actualizarCompra", () => {
+  test("usa el costo_total explícito sin consultar configuración", async () => {
+    const compraActualizada = {
+      id: "compra-1",
+      fecha: "2026-07-30",
+      tipo: "carne",
+      cantidad_paquetes: 3,
+      costo_total: 70000,
+      bolsillo_origen: null,
+    };
+    const { client, getUpdatePayload } = createFakeClient({
+      updateResult: { data: compraActualizada, error: null },
+    });
+
+    const resultado = await actualizarCompra(client, "compra-1", {
+      fecha: "2026-07-30",
+      tipo: "carne",
+      cantidad_paquetes: 3,
+      costo_total: 70000,
+    });
+
+    expect(resultado).toEqual(compraActualizada);
+    expect(getUpdatePayload()).toMatchObject({ cantidad_paquetes: 3, costo_total: 70000 });
+  });
+
+  test("autocalcula el costo_total con la configuración vigente cuando no se pasa", async () => {
+    const compraActualizada = {
+      id: "compra-1",
+      fecha: "2026-07-30",
+      tipo: "pollo",
+      cantidad_paquetes: 2,
+      costo_total: 56000,
+      bolsillo_origen: null,
+    };
+    const { client, getUpdatePayload } = createFakeClient({
+      configuracion: { data: configPorDefecto, error: null },
+      updateResult: { data: compraActualizada, error: null },
+    });
+
+    await actualizarCompra(client, "compra-1", {
+      fecha: "2026-07-30",
+      tipo: "pollo",
+      cantidad_paquetes: 2,
+    });
+
+    expect(getUpdatePayload()).toMatchObject({ costo_total: 56000 });
+  });
+});
+
+describe("eliminarCompra", () => {
+  test("borra la compra con el id indicado", async () => {
+    const { client, getIdEliminado } = createFakeClient({});
+
+    await eliminarCompra(client, "compra-1");
+
+    expect(getIdEliminado()).toBe("compra-1");
   });
 });

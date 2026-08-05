@@ -6,9 +6,9 @@ Todos los cambios de esta sesión se hicieron sobre el branch `worktree-billeter
 
 ## Resumen rápido (checklist)
 
-- [ ] Conectar el botón de eliminar (canasta) en fiados pagados a una acción real de borrado.
-- [ ] Decidir e implementar cómo funciona "Editar stock" (stock es 100% calculado, no hay campo mutable).
-- [ ] Conectar el gráfico "Ventas de la semana actual" a datos reales (hoy usa `datosMock`).
+- [x] Conectar el botón de eliminar (canasta) en fiados pagados a una acción real de borrado.
+- [x] Decidir e implementar cómo funciona "Editar stock" — se implementó la **Opción A** (editar/borrar compras); el botón "Editar stock" ahora enlaza a `#historial-compras`.
+- [x] Conectar el gráfico "Ventas de la semana actual" a datos reales (ya no usa `datosMock`).
 - [ ] (Opcional, no bloqueante) Evaluar si vale la pena renombrar `monto_nu` → `monto_nequi` en base de datos para que coincida con el front, siguiendo el precedente de `002_rename_billetera.sql`.
 
 Nada de lo de abajo requirió tocar base de datos todavía — todos los cambios de esta sesión fueron solo visuales (`components/**`, `app/layout.tsx`, `app/globals.css`, `tailwind.config.ts`). Los tres puntos con checkbox de arriba sí lo requieren.

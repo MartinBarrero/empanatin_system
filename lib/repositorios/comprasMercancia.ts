@@ -54,6 +54,39 @@ export async function crearCompra(
   return data as CompraMercancia;
 }
 
+export async function actualizarCompra(
+  client: SupabaseClient,
+  id: string,
+  input: CompraMercanciaInput
+): Promise<CompraMercancia> {
+  let costoTotal = input.costo_total;
+  if (costoTotal === undefined) {
+    const config = await obtenerConfiguracionVigente(client);
+    costoTotal = costoPorPaquete(input.tipo, config) * input.cantidad_paquetes;
+  }
+
+  const { data, error } = await client
+    .from("compras_mercancia")
+    .update({
+      fecha: input.fecha,
+      tipo: input.tipo,
+      cantidad_paquetes: input.cantidad_paquetes,
+      costo_total: costoTotal,
+      bolsillo_origen: input.bolsillo_origen ?? null,
+    })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as CompraMercancia;
+}
+
+export async function eliminarCompra(client: SupabaseClient, id: string): Promise<void> {
+  const { error } = await client.from("compras_mercancia").delete().eq("id", id);
+  if (error) throw error;
+}
+
 export async function listarCompras(client: SupabaseClient): Promise<CompraMercancia[]> {
   const { data, error } = await client
     .from("compras_mercancia")

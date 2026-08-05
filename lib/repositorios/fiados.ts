@@ -52,6 +52,11 @@ export async function listarFiados(
   return (data ?? []) as Fiado[];
 }
 
+export async function eliminarFiado(client: SupabaseClient, id: string): Promise<void> {
+  const { error } = await client.from("fiados").delete().eq("id", id);
+  if (error) throw error;
+}
+
 export async function registrarAbono(
   client: SupabaseClient,
   id: string,

@@ -2,9 +2,16 @@
 
 import { revalidatePath } from "next/cache";
 import { supabase } from "@/lib/supabase";
-import { crearFiado, registrarAbono, type Fiado, type FiadoInput } from "@/lib/repositorios/fiados";
+import {
+  crearFiado,
+  eliminarFiado,
+  registrarAbono,
+  type Fiado,
+  type FiadoInput,
+} from "@/lib/repositorios/fiados";
 
 export type FiadoResultado = { ok: true; fiado: Fiado } | { ok: false; error: string };
+export type EliminarFiadoResultado = { ok: true } | { ok: false; error: string };
 
 export async function crearFiadoAction(input: FiadoInput): Promise<FiadoResultado> {
   try {
@@ -29,5 +36,16 @@ export async function registrarAbonoAction(
   } catch (error) {
     console.error("Error al registrar el abono:", error);
     return { ok: false, error: "No se pudo registrar el abono. Intenta de nuevo." };
+  }
+}
+
+export async function eliminarFiadoAction(id: string): Promise<EliminarFiadoResultado> {
+  try {
+    await eliminarFiado(supabase, id);
+    revalidatePath("/");
+    return { ok: true };
+  } catch (error) {
+    console.error("Error al eliminar el fiado:", error);
+    return { ok: false, error: "No se pudo eliminar el fiado. Intenta de nuevo." };
   }
 }

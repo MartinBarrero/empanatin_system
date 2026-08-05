@@ -23,14 +23,14 @@ export function StockSection({ stock, compras, config }: Props) {
       <div className="mb-8">
         <div className="mb-4 flex items-center justify-between">
           <p className="text-sm font-medium text-muted">Inventario actual</p>
-          <button
-            type="button"
-            title="Corregir el stock manualmente"
+          <a
+            href="#historial-compras"
+            title="El stock se calcula solo: corrígelo editando o borrando la compra correspondiente"
             className="inline-flex items-center gap-2 rounded-lg border border-accent px-3 py-1.5 text-sm text-accent transition hover:bg-accent/10"
           >
             <Pencil size={14} />
             Editar stock
-          </button>
+          </a>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="rounded-2xl border border-border/70 bg-surface p-4 text-center shadow-lg shadow-black/20">

@@ -4,7 +4,7 @@ import { useState, useTransition, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import type { Fiado } from "@/lib/repositorios/fiados";
-import { crearFiadoAction, registrarAbonoAction } from "@/app/actions/fiados";
+import { crearFiadoAction, eliminarFiadoAction, registrarAbonoAction } from "@/app/actions/fiados";
 
 interface Props {
   fiadosIniciales: Fiado[];
@@ -61,6 +61,23 @@ export function FiadosPanel({ fiadosIniciales }: Props) {
 
       setFiados((actual) => actual.map((f) => (f.id === id ? resultado.fiado : f)));
       setMontosAbono((actual) => ({ ...actual, [id]: "" }));
+      router.refresh();
+    });
+  }
+
+  function handleEliminar(id: string) {
+    if (!window.confirm("¿Eliminar este fiado pagado? Esta acción no se puede deshacer.")) return;
+
+    setMensaje(null);
+    startTransition(async () => {
+      const resultado = await eliminarFiadoAction(id);
+
+      if (!resultado.ok) {
+        setMensaje({ tipo: "error", texto: resultado.error });
+        return;
+      }
+
+      setFiados((actual) => actual.filter((f) => f.id !== id));
       router.refresh();
     });
   }
@@ -164,7 +181,9 @@ export function FiadosPanel({ fiadosIniciales }: Props) {
               <button
                 type="button"
                 title="Eliminar fiado pagado"
-                className="rounded-lg border border-danger/40 p-2 text-danger transition hover:bg-danger/10"
+                disabled={guardando}
+                onClick={() => handleEliminar(fiado.id)}
+                className="rounded-lg border border-danger/40 p-2 text-danger transition hover:bg-danger/10 disabled:opacity-60"
               >
                 <Trash2 size={16} />
               </button>

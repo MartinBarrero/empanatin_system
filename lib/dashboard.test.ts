@@ -4,6 +4,7 @@ import {
   calcularComparacionCarnePollo,
   calcularTotalesPorPeriodo,
   calcularUtilidadAcumulada,
+  calcularVentasSemana,
 } from "./dashboard";
 
 function registro(parcial: Partial<RegistroDiario> & { fecha: string }): RegistroDiario {
@@ -82,5 +83,35 @@ describe("calcularUtilidadAcumulada", () => {
 
   test("lista vacía retorna serie vacía", () => {
     expect(calcularUtilidadAcumulada([])).toEqual([]);
+  });
+});
+
+describe("calcularVentasSemana", () => {
+  // Referencia: martes 2026-07-28 (semana lunes 2026-07-27 a domingo 2026-08-02)
+  test("retorna los 7 días de la semana con carne/pollo en el día correspondiente", () => {
+    const registros = [
+      registro({ fecha: "2026-07-27", carne_llevada: 20, pollo_llevada: 15 }), // Lun
+      registro({ fecha: "2026-07-28", carne_llevada: 25, pollo_llevada: 10 }), // Mar
+      registro({ fecha: "2026-06-20", carne_llevada: 99, pollo_llevada: 99 }), // fuera de la semana
+    ];
+
+    const serie = calcularVentasSemana(registros, "2026-07-28");
+
+    expect(serie).toEqual([
+      { dia: "Lun", carne: 20, pollo: 15 },
+      { dia: "Mar", carne: 25, pollo: 10 },
+      { dia: "Mié", carne: 0, pollo: 0 },
+      { dia: "Jue", carne: 0, pollo: 0 },
+      { dia: "Vie", carne: 0, pollo: 0 },
+      { dia: "Sáb", carne: 0, pollo: 0 },
+      { dia: "Dom", carne: 0, pollo: 0 },
+    ]);
+  });
+
+  test("sin registros retorna la semana completa en ceros", () => {
+    const serie = calcularVentasSemana([], "2026-07-28");
+
+    expect(serie.map((d) => d.dia)).toEqual(["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]);
+    expect(serie.every((d) => d.carne === 0 && d.pollo === 0)).toBe(true);
   });
 });

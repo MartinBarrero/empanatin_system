@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   crearFiado,
+  eliminarFiado,
   FiadoNoEncontradoError,
   listarFiados,
   registrarAbono,
@@ -18,10 +19,12 @@ function createFakeClient(options: {
   listResult?: FakeResult<unknown>;
   fiadoPorId?: FakeResult<unknown>;
   updateResult?: FakeResult<unknown>;
+  deleteResult?: { error: { message: string } | null };
 }) {
   let insertPayload: unknown = null;
   let updatePayload: unknown = null;
   let estadoFiltrado: string | null = null;
+  let idEliminado: string | null = null;
 
   const client = {
     from(table: string) {
@@ -51,6 +54,12 @@ function createFakeClient(options: {
             }),
           };
         },
+        delete: () => ({
+          eq: async (_col: string, val: string) => {
+            idEliminado = val;
+            return options.deleteResult ?? { error: null };
+          },
+        }),
       };
     },
   };
@@ -60,6 +69,7 @@ function createFakeClient(options: {
     getInsertPayload: () => insertPayload,
     getUpdatePayload: () => updatePayload,
     getEstadoFiltrado: () => estadoFiltrado,
+    getIdEliminado: () => idEliminado,
   };
 }
 
@@ -182,5 +192,23 @@ describe("registrarAbono", () => {
     await expect(registrarAbono(client, "no-existe", 1000, "2026-07-30")).rejects.toThrow(
       FiadoNoEncontradoError
     );
+  });
+});
+
+describe("eliminarFiado", () => {
+  test("borra el fiado con el id indicado", async () => {
+    const { client, getIdEliminado } = createFakeClient({});
+
+    await eliminarFiado(client, "fiado-1");
+
+    expect(getIdEliminado()).toBe("fiado-1");
+  });
+
+  test("lanza el error de Supabase si el borrado falla", async () => {
+    const { client } = createFakeClient({
+      deleteResult: { error: { message: "boom" } },
+    });
+
+    await expect(eliminarFiado(client, "fiado-1")).rejects.toMatchObject({ message: "boom" });
   });
 });

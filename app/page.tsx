@@ -45,6 +45,7 @@ export default async function Home() {
         config={config}
         fechaInicial={fechaInicial}
         registroInicial={registroInicial}
+        registros={registros}
       />
       <DashboardSection
         registros={registros}

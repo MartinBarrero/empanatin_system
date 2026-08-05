@@ -9,9 +9,10 @@ interface Props {
   config: Configuracion;
   fechaInicial: string;
   registroInicial: RegistroDiario | null;
+  registros: RegistroDiario[];
 }
 
-export function RegistroSection({ config, fechaInicial, registroInicial }: Props) {
+export function RegistroSection({ config, fechaInicial, registroInicial, registros }: Props) {
   return (
     <section id="registro" className="mx-auto max-w-6xl px-6 py-16">
       <SectionHeading
@@ -25,7 +26,7 @@ export function RegistroSection({ config, fechaInicial, registroInicial }: Props
           fechaInicial={fechaInicial}
           registroInicial={registroInicial}
         />
-        <VentasSemanaChart />
+        <VentasSemanaChart registros={registros} fechaReferencia={fechaInicial} />
       </div>
     </section>
   );
