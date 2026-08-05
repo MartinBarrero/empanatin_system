@@ -54,13 +54,9 @@ export function DashboardSection({ registros, fiados, stock, capital, bolsillos 
   ];
 
   const otrasTarjetas: { titulo: string; valor: string; destacar?: boolean; valorNumerico?: number }[] = [
-    { titulo: "Capital de reinversión", valor: formatoPesos(capital) },
     { titulo: "Deudas pendientes", valor: formatoPesos(deudaPendiente), destacar: true, valorNumerico: -deudaPendiente },
     { titulo: "Stock carne", valor: `${stock.carne} unidades` },
     { titulo: "Stock pollo", valor: `${stock.pollo} unidades` },
-    { titulo: "Billetera", valor: formatoPesos(bolsillos.billetera) },
-    { titulo: "Monedas", valor: formatoPesos(bolsillos.monedas) },
-    { titulo: "Nequi", valor: formatoPesos(bolsillos.nu) },
   ];
 
   return (
@@ -96,6 +92,30 @@ export function DashboardSection({ registros, fiados, stock, capital, bolsillos 
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="mb-8 grid gap-5 sm:grid-cols-2">
+        <div className="rounded-2xl border border-border/70 bg-surface p-5 shadow-lg shadow-black/20">
+          <p className="font-serif text-lg font-bold text-accent">Capital de reinversión</p>
+          <p className="mt-4 text-2xl font-semibold text-foreground">{formatoPesos(capital)}</p>
+        </div>
+        <div className="rounded-2xl border border-border/70 bg-surface p-5 shadow-lg shadow-black/20">
+          <p className="font-serif text-lg font-bold text-accent">Bolsillos</p>
+          <div className="mt-4 grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs text-muted">Efectivo</p>
+              <p className="mt-1 text-xl font-semibold text-foreground">
+                {formatoPesos(bolsillos.billetera)}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-muted">Nequi</p>
+              <p className="mt-1 text-xl font-semibold text-foreground">
+                {formatoPesos(bolsillos.nu)}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
