@@ -139,96 +139,93 @@ export function RegistroDiarioForm({ config, fechaInicial, registroInicial }: Pr
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="flex flex-col gap-1 text-sm text-muted">
+    <form onSubmit={handleSubmit} className="mx-auto flex w-full max-w-md flex-col items-center gap-6 text-center">
+      <div className="flex w-full flex-col items-center gap-4">
+        <label className="flex w-full flex-col items-center gap-1 text-sm text-muted">
           Fecha
           <input
             type="date"
             required
             value={form.fecha}
             onChange={(e) => handleFechaChange(e.target.value)}
-            className="rounded-lg border border-border bg-surface px-3 py-2 text-foreground transition focus:border-accent"
+            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-center text-foreground transition focus:border-accent"
           />
         </label>
 
-        <div className="flex items-end text-sm text-muted">
-          {buscandoFecha
-            ? "Buscando registro para esa fecha…"
-            : existeRegistro
-              ? "Editando el registro ya guardado de este día."
-              : "No hay registro guardado para este día todavía."}
-        </div>
+        {buscandoFecha && <p className="text-sm text-muted">Buscando registro para esa fecha…</p>}
+        {!buscandoFecha && !existeRegistro && (
+          <p className="text-sm text-muted">No hay registro guardado para este día todavía.</p>
+        )}
 
-        <label className="flex flex-col gap-1 text-sm text-muted">
-          Carne llevada (unidades)
+        <label className="flex w-full flex-col items-center gap-1 text-sm text-muted">
+          Carne
           <input
             type="number"
             min="0"
             required
             value={form.carneLlevada}
             onChange={(e) => actualizarCampo("carneLlevada", e.target.value)}
-            className="rounded-lg border border-border bg-surface px-3 py-2 text-foreground transition focus:border-accent"
+            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-center text-foreground transition focus:border-accent"
           />
         </label>
 
-        <label className="flex flex-col gap-1 text-sm text-muted">
-          Pollo llevado (unidades)
+        <label className="flex w-full flex-col items-center gap-1 text-sm text-muted">
+          Pollo
           <input
             type="number"
             min="0"
             required
             value={form.polloLlevada}
             onChange={(e) => actualizarCampo("polloLlevada", e.target.value)}
-            className="rounded-lg border border-border bg-surface px-3 py-2 text-foreground transition focus:border-accent"
+            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-center text-foreground transition focus:border-accent"
           />
         </label>
 
-        <label className="flex flex-col gap-1 text-sm text-muted">
+        <label className="flex w-full flex-col items-center gap-1 text-sm text-muted">
           Regalos de carne (informativo)
           <input
             type="number"
             min="0"
             value={form.regalosCarne}
             onChange={(e) => actualizarCampo("regalosCarne", e.target.value)}
-            className="rounded-lg border border-border bg-surface px-3 py-2 text-foreground transition focus:border-accent"
+            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-center text-foreground transition focus:border-accent"
           />
         </label>
       </div>
 
-      <fieldset className="flex flex-col gap-4 rounded-2xl border border-border p-5">
+      <fieldset className="flex w-full flex-col items-center gap-4 rounded-2xl border border-border p-5">
         <legend className="px-1 text-sm text-muted">
           Distribución del ingreso por bolsillo
         </legend>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <label className="flex flex-col gap-1 text-sm text-muted">
+        <div className="grid w-full gap-4 sm:grid-cols-3">
+          <label className="flex flex-col items-center gap-1 text-sm text-muted">
             Billetera
             <input
               type="number"
               min="0"
               value={form.montoBilletera}
               onChange={(e) => actualizarCampo("montoBilletera", e.target.value)}
-              className="rounded-lg border border-border bg-surface px-3 py-2 text-foreground transition focus:border-accent"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-center text-foreground transition focus:border-accent"
             />
           </label>
-          <label className="flex flex-col gap-1 text-sm text-muted">
-            Monedas
-            <input
-              type="number"
-              min="0"
-              value={form.montoMonedas}
-              onChange={(e) => actualizarCampo("montoMonedas", e.target.value)}
-              className="rounded-lg border border-border bg-surface px-3 py-2 text-foreground transition focus:border-accent"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm text-muted">
+          <label className="flex flex-col items-center gap-1 text-sm text-muted">
             Nequi
             <input
               type="number"
               min="0"
               value={form.montoNu}
               onChange={(e) => actualizarCampo("montoNu", e.target.value)}
-              className="rounded-lg border border-border bg-surface px-3 py-2 text-foreground transition focus:border-accent"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-center text-foreground transition focus:border-accent"
+            />
+          </label>
+          <label className="flex flex-col items-center gap-1 text-sm text-muted">
+            Monedas
+            <input
+              type="number"
+              min="0"
+              value={form.montoMonedas}
+              onChange={(e) => actualizarCampo("montoMonedas", e.target.value)}
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-center text-foreground transition focus:border-accent"
             />
           </label>
         </div>
@@ -237,17 +234,17 @@ export function RegistroDiarioForm({ config, fechaInicial, registroInicial }: Pr
         </p>
       </fieldset>
 
-      <label className="flex flex-col gap-1 text-sm text-muted">
+      <label className="flex w-full flex-col items-center gap-1 text-sm text-muted">
         Notas (opcional)
         <textarea
           value={form.notas}
           onChange={(e) => actualizarCampo("notas", e.target.value)}
           rows={2}
-          className="rounded-md border border-border bg-surface px-3 py-2 text-foreground"
+          className="w-full rounded-md border border-border bg-surface px-3 py-2 text-foreground"
         />
       </label>
 
-      <div className="rounded-2xl border border-border/70 bg-surface p-5 shadow-lg shadow-black/20">
+      <div className="w-full rounded-2xl border border-border/70 bg-surface p-5 shadow-lg shadow-black/20">
         <h3 className="mb-3 text-sm font-medium text-muted">Vista previa del día</h3>
         <dl className="grid grid-cols-3 gap-4 text-center">
           <div>

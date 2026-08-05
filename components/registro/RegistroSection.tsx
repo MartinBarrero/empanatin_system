@@ -19,7 +19,7 @@ export function RegistroSection({ config, fechaInicial, registroInicial }: Props
         title="Registro diario"
         description="Ingresa lo que llevaste hoy y ve la utilidad calculada al instante."
       />
-      <div className="grid gap-8 lg:grid-cols-2">
+      <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
         <RegistroDiarioForm
           config={config}
           fechaInicial={fechaInicial}
