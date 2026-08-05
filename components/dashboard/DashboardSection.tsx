@@ -32,13 +32,28 @@ export function DashboardSection({ registros, fiados, stock, capital, bolsillos 
     .filter((f) => f.estado === "pendiente")
     .reduce((suma, f) => suma + (f.monto - f.monto_abonado), 0);
 
-  const tarjetas: { titulo: string; valor: string; destacar?: boolean; valorNumerico?: number }[] = [
-    { titulo: "Ventas hoy", valor: formatoPesos(totales.diario.ventas) },
-    { titulo: "Utilidad hoy", valor: formatoPesos(totales.diario.utilidad), destacar: true, valorNumerico: totales.diario.utilidad },
-    { titulo: "Ventas esta semana", valor: formatoPesos(totales.semanal.ventas) },
-    { titulo: "Utilidad esta semana", valor: formatoPesos(totales.semanal.utilidad), destacar: true, valorNumerico: totales.semanal.utilidad },
-    { titulo: "Ventas este mes", valor: formatoPesos(totales.mensual.ventas) },
-    { titulo: "Utilidad este mes", valor: formatoPesos(totales.mensual.utilidad), destacar: true, valorNumerico: totales.mensual.utilidad },
+  const periodos: { titulo: string; ventas: string; utilidad: string; utilidadNumerica: number }[] = [
+    {
+      titulo: "Hoy",
+      ventas: formatoPesos(totales.diario.ventas),
+      utilidad: formatoPesos(totales.diario.utilidad),
+      utilidadNumerica: totales.diario.utilidad,
+    },
+    {
+      titulo: "Esta semana",
+      ventas: formatoPesos(totales.semanal.ventas),
+      utilidad: formatoPesos(totales.semanal.utilidad),
+      utilidadNumerica: totales.semanal.utilidad,
+    },
+    {
+      titulo: "Este mes",
+      ventas: formatoPesos(totales.mensual.ventas),
+      utilidad: formatoPesos(totales.mensual.utilidad),
+      utilidadNumerica: totales.mensual.utilidad,
+    },
+  ];
+
+  const otrasTarjetas: { titulo: string; valor: string; destacar?: boolean; valorNumerico?: number }[] = [
     { titulo: "Capital de reinversión", valor: formatoPesos(capital) },
     { titulo: "Deudas pendientes", valor: formatoPesos(deudaPendiente), destacar: true, valorNumerico: -deudaPendiente },
     { titulo: "Stock carne", valor: `${stock.carne} unidades` },
@@ -56,8 +71,35 @@ export function DashboardSection({ registros, fiados, stock, capital, bolsillos 
         description="Totales del día, la semana y el mes, en un vistazo."
       />
 
+      <div className="mb-8 grid gap-5 sm:grid-cols-3">
+        {periodos.map((periodo) => (
+          <div
+            key={periodo.titulo}
+            className="rounded-2xl border border-border/70 bg-surface p-5 shadow-lg shadow-black/20"
+          >
+            <p className="font-serif text-lg font-bold text-accent">{periodo.titulo}</p>
+            <div className="mt-4 grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs text-muted">Ventas</p>
+                <p className="mt-1 text-xl font-semibold text-foreground">{periodo.ventas}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted">Utilidad</p>
+                <p
+                  className={`mt-1 text-xl font-semibold ${
+                    periodo.utilidadNumerica >= 0 ? "text-success" : "text-danger"
+                  }`}
+                >
+                  {periodo.utilidad}
+                </p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
       <div className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {tarjetas.map((tarjeta) => (
+        {otrasTarjetas.map((tarjeta) => (
           <div
             key={tarjeta.titulo}
             className="rounded-2xl border border-border/70 bg-surface p-4 shadow-lg shadow-black/20 transition hover:border-accent/40"
