@@ -157,29 +157,31 @@ export function RegistroDiarioForm({ config, fechaInicial, registroInicial }: Pr
           <p className="text-sm text-muted">No hay registro guardado para este día todavía.</p>
         )}
 
-        <label className="flex w-full flex-col items-center gap-1 text-sm text-muted">
-          Carne
-          <input
-            type="number"
-            min="0"
-            required
-            value={form.carneLlevada}
-            onChange={(e) => actualizarCampo("carneLlevada", e.target.value)}
-            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-center text-foreground transition focus:border-accent"
-          />
-        </label>
+        <div className="grid w-full grid-cols-2 gap-4">
+          <label className="flex flex-col items-center gap-1 text-sm text-muted">
+            Carne
+            <input
+              type="number"
+              min="0"
+              required
+              value={form.carneLlevada}
+              onChange={(e) => actualizarCampo("carneLlevada", e.target.value)}
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-center text-foreground transition focus:border-accent"
+            />
+          </label>
 
-        <label className="flex w-full flex-col items-center gap-1 text-sm text-muted">
-          Pollo
-          <input
-            type="number"
-            min="0"
-            required
-            value={form.polloLlevada}
-            onChange={(e) => actualizarCampo("polloLlevada", e.target.value)}
-            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-center text-foreground transition focus:border-accent"
-          />
-        </label>
+          <label className="flex flex-col items-center gap-1 text-sm text-muted">
+            Pollo
+            <input
+              type="number"
+              min="0"
+              required
+              value={form.polloLlevada}
+              onChange={(e) => actualizarCampo("polloLlevada", e.target.value)}
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-center text-foreground transition focus:border-accent"
+            />
+          </label>
+        </div>
 
         <label className="flex w-full flex-col items-center gap-1 text-sm text-muted">
           Regalos de carne (informativo)

@@ -2,6 +2,7 @@
 
 import { useState, useTransition, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { Trash2 } from "lucide-react";
 import type { Fiado } from "@/lib/repositorios/fiados";
 import { crearFiadoAction, registrarAbonoAction } from "@/app/actions/fiados";
 
@@ -154,10 +155,19 @@ export function FiadosPanel({ fiadosIniciales }: Props) {
               key={fiado.id}
               className="flex items-center justify-between gap-3 rounded-2xl border border-border/70 bg-surface p-4 shadow-lg shadow-black/20"
             >
-              <p className="font-medium text-foreground">{fiado.nombre_persona}</p>
-              <p className="text-sm text-success">
-                {formatoPesos(fiado.monto)} pagado el {fiado.fecha_pago}
-              </p>
+              <div>
+                <p className="font-medium text-foreground">{fiado.nombre_persona}</p>
+                <p className="text-sm text-success">
+                  {formatoPesos(fiado.monto)} pagado el {fiado.fecha_pago}
+                </p>
+              </div>
+              <button
+                type="button"
+                title="Eliminar fiado pagado"
+                className="rounded-lg border border-danger/40 p-2 text-danger transition hover:bg-danger/10"
+              >
+                <Trash2 size={16} />
+              </button>
             </li>
           ))}
         </ul>
