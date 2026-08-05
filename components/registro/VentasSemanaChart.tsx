@@ -38,8 +38,8 @@ export function VentasSemanaChart() {
             contentStyle={{ background: "#1A1A1D", border: "1px solid #2C2C30", color: "#F5F5F0" }}
           />
           <Legend />
-          <Bar dataKey="carne" name="Carne" fill="#F2C230" radius={[4, 4, 0, 0]} />
-          <Bar dataKey="pollo" name="Pollo" fill="#3DB56A" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="carne" name="Carne" fill="#3B82F6" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="pollo" name="Pollo" fill="#F5F5F0" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>
