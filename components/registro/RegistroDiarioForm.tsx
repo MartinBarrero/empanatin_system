@@ -222,7 +222,7 @@ export function RegistroDiarioForm({ config, fechaInicial, registroInicial }: Pr
             />
           </label>
           <label className="flex flex-col gap-1 text-sm text-muted">
-            Nu
+            Nequi
             <input
               type="number"
               min="0"

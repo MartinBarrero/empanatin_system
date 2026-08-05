@@ -45,7 +45,7 @@ export function DashboardSection({ registros, fiados, stock, capital, bolsillos 
     { titulo: "Stock pollo", valor: `${stock.pollo} unidades` },
     { titulo: "Billetera", valor: formatoPesos(bolsillos.billetera) },
     { titulo: "Monedas", valor: formatoPesos(bolsillos.monedas) },
-    { titulo: "Nu", valor: formatoPesos(bolsillos.nu) },
+    { titulo: "Nequi", valor: formatoPesos(bolsillos.nu) },
   ];
 
   return (
