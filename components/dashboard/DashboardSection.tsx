@@ -3,11 +3,7 @@ import type { RegistroDiario } from "@/lib/repositorios/registrosDiarios";
 import type { Fiado } from "@/lib/repositorios/fiados";
 import type { StockActual } from "@/lib/repositorios/inventario";
 import type { SaldosBolsillos } from "@/lib/repositorios/bolsillos";
-import {
-  calcularComparacionCarnePollo,
-  calcularTotalesPorPeriodo,
-  calcularUtilidadAcumulada,
-} from "@/lib/dashboard";
+import { calcularTotalesPorPeriodo, calcularUtilidadAcumulada } from "@/lib/dashboard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { UtilidadAcumuladaChart } from "./UtilidadAcumuladaChart";
 
@@ -26,7 +22,6 @@ function formatoPesos(valor: number): string {
 export function DashboardSection({ registros, fiados, stock, capital, bolsillos }: Props) {
   const hoy = new Date().toISOString().slice(0, 10);
   const totales = calcularTotalesPorPeriodo(registros, hoy);
-  const comparacion = calcularComparacionCarnePollo(registros);
   const serieUtilidad = calcularUtilidadAcumulada(registros);
   const deudaPendiente = fiados
     .filter((f) => f.estado === "pendiente")
@@ -140,22 +135,7 @@ export function DashboardSection({ registros, fiados, stock, capital, bolsillos 
         ))}
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-2">
-        <div className="rounded-2xl border border-border/70 bg-surface p-5 shadow-lg shadow-black/20">
-          <h3 className="mb-4 text-sm font-medium text-muted">Carne vs. pollo (unidades llevadas)</h3>
-          <dl className="grid grid-cols-2 gap-4 text-center">
-            <div>
-              <dt className="text-xs text-muted">Carne</dt>
-              <dd className="text-2xl font-semibold text-accent">{comparacion.carne}</dd>
-            </div>
-            <div>
-              <dt className="text-xs text-muted">Pollo</dt>
-              <dd className="text-2xl font-semibold text-success">{comparacion.pollo}</dd>
-            </div>
-          </dl>
-        </div>
-        <UtilidadAcumuladaChart serie={serieUtilidad} />
-      </div>
+      <UtilidadAcumuladaChart serie={serieUtilidad} />
     </section>
   );
 }
