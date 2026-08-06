@@ -2,7 +2,6 @@ import { LayoutDashboard } from "lucide-react";
 import type { RegistroDiario } from "@/lib/repositorios/registrosDiarios";
 import type { Fiado } from "@/lib/repositorios/fiados";
 import type { StockActual } from "@/lib/repositorios/inventario";
-import type { SaldosBolsillos } from "@/lib/repositorios/bolsillos";
 import { calcularTotalesPorPeriodo, calcularUtilidadAcumulada } from "@/lib/dashboard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { UtilidadAcumuladaChart } from "./UtilidadAcumuladaChart";
@@ -12,14 +11,13 @@ interface Props {
   fiados: Fiado[];
   stock: StockActual;
   capital: number;
-  bolsillos: SaldosBolsillos;
 }
 
 function formatoPesos(valor: number): string {
   return `$${Math.round(valor).toLocaleString("es-CO")}`;
 }
 
-export function DashboardSection({ registros, fiados, stock, capital, bolsillos }: Props) {
+export function DashboardSection({ registros, fiados, stock, capital }: Props) {
   const hoy = new Date().toISOString().slice(0, 10);
   const totales = calcularTotalesPorPeriodo(registros, hoy);
   const serieUtilidad = calcularUtilidadAcumulada(registros);
@@ -89,28 +87,9 @@ export function DashboardSection({ registros, fiados, stock, capital, bolsillos 
         ))}
       </div>
 
-      <div className="mb-8 grid gap-5 sm:grid-cols-2">
-        <div className="rounded-2xl border border-border/70 bg-surface p-5 shadow-lg shadow-black/20">
-          <p className="font-serif text-lg font-bold text-accent">Capital de reinversión</p>
-          <p className="mt-4 text-2xl font-semibold text-foreground">{formatoPesos(capital)}</p>
-        </div>
-        <div className="rounded-2xl border border-border/70 bg-surface p-5 shadow-lg shadow-black/20">
-          <p className="font-serif text-lg font-bold text-accent">Bolsillos</p>
-          <div className="mt-4 grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-xs text-muted">Efectivo</p>
-              <p className="mt-1 text-xl font-semibold text-foreground">
-                {formatoPesos(bolsillos.billetera)}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted">Nequi</p>
-              <p className="mt-1 text-xl font-semibold text-foreground">
-                {formatoPesos(bolsillos.nu)}
-              </p>
-            </div>
-          </div>
-        </div>
+      <div className="mb-8 rounded-2xl border border-border/70 bg-surface p-5 shadow-lg shadow-black/20">
+        <p className="font-serif text-lg font-bold text-accent">Capital de reinversión</p>
+        <p className="mt-4 text-2xl font-semibold text-foreground">{formatoPesos(capital)}</p>
       </div>
 
       <div className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

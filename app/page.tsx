@@ -8,7 +8,6 @@ import { listarFiados } from "@/lib/repositorios/fiados";
 import { listarCompras } from "@/lib/repositorios/comprasMercancia";
 import { obtenerStockActual } from "@/lib/repositorios/inventario";
 import { obtenerCapitalReinversion } from "@/lib/repositorios/capital";
-import { obtenerSaldosBolsillos } from "@/lib/repositorios/bolsillos";
 import { HeroSection } from "@/components/hero/HeroSection";
 import { RegistroSection } from "@/components/registro/RegistroSection";
 import { DashboardSection } from "@/components/dashboard/DashboardSection";
@@ -26,7 +25,7 @@ function hoyISO(): string {
 export default async function Home() {
   const fechaInicial = hoyISO();
 
-  const [config, registroInicial, registros, fiados, compras, stock, capital, bolsillos] =
+  const [config, registroInicial, registros, fiados, compras, stock, capital] =
     await Promise.all([
       obtenerConfiguracionVigente(supabase),
       obtenerRegistroPorFecha(supabase, fechaInicial),
@@ -35,7 +34,6 @@ export default async function Home() {
       listarCompras(supabase),
       obtenerStockActual(supabase),
       obtenerCapitalReinversion(supabase),
-      obtenerSaldosBolsillos(supabase),
     ]);
 
   return (
@@ -52,7 +50,6 @@ export default async function Home() {
         fiados={fiados}
         stock={stock}
         capital={capital}
-        bolsillos={bolsillos}
       />
       <FiadosSection fiados={fiados} />
       <StockSection stock={stock} compras={compras} config={config} />
