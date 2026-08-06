@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Pencil, Trash2, X } from "lucide-react";
 import type { CompraMercancia, TipoMercancia } from "@/lib/repositorios/comprasMercancia";
 import type { Configuracion } from "@/lib/calculos";
+import { hoyISO } from "@/lib/fecha";
 import { actualizarCompraAction, crearCompraAction, eliminarCompraAction } from "@/app/actions/compras";
 
 interface Props {
@@ -49,7 +50,7 @@ export function CompraMercanciaPanel({ comprasIniciales, config }: Props) {
 
     startTransition(async () => {
       const resultado = await crearCompraAction({
-        fecha: new Date().toISOString().slice(0, 10),
+        fecha: hoyISO(),
         tipo,
         cantidad_paquetes: cantidad,
         costo_total: costoTotal.trim() === "" ? undefined : Number(costoTotal),

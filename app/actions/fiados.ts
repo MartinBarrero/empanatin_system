@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { supabase } from "@/lib/supabase";
+import { hoyISO } from "@/lib/fecha";
 import {
   crearFiado,
   eliminarFiado,
@@ -29,7 +30,7 @@ export async function registrarAbonoAction(
   montoAbono: number
 ): Promise<FiadoResultado> {
   try {
-    const hoy = new Date().toISOString().slice(0, 10);
+    const hoy = hoyISO();
     const fiado = await registrarAbono(supabase, id, montoAbono, hoy);
     revalidatePath("/");
     return { ok: true, fiado };

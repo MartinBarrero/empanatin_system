@@ -4,6 +4,7 @@ import { useState, useTransition, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import type { Fiado } from "@/lib/repositorios/fiados";
+import { hoyISO } from "@/lib/fecha";
 import { crearFiadoAction, eliminarFiadoAction, registrarAbonoAction } from "@/app/actions/fiados";
 
 interface Props {
@@ -28,7 +29,7 @@ export function FiadosPanel({ fiadosIniciales }: Props) {
     setMensaje(null);
     startTransition(async () => {
       const resultado = await crearFiadoAction({
-        fecha_creacion: new Date().toISOString().slice(0, 10),
+        fecha_creacion: hoyISO(),
         nombre_persona: nombre,
         cantidad_empanadas: null,
         monto: Number(monto),

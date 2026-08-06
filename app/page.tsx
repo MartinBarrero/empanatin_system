@@ -8,6 +8,7 @@ import { listarFiados } from "@/lib/repositorios/fiados";
 import { listarCompras } from "@/lib/repositorios/comprasMercancia";
 import { obtenerStockActual } from "@/lib/repositorios/inventario";
 import { obtenerCapitalReinversion } from "@/lib/repositorios/capital";
+import { hoyISO } from "@/lib/fecha";
 import { HeroSection } from "@/components/hero/HeroSection";
 import { RegistroSection } from "@/components/registro/RegistroSection";
 import { DashboardSection } from "@/components/dashboard/DashboardSection";
@@ -17,10 +18,6 @@ import { StockSection } from "@/components/stock/StockSection";
 // Depende de la fecha actual y del estado vigente en Supabase — no se puede
 // cachear como página estática.
 export const dynamic = "force-dynamic";
-
-function hoyISO(): string {
-  return new Date().toISOString().slice(0, 10);
-}
 
 export default async function Home() {
   const fechaInicial = hoyISO();

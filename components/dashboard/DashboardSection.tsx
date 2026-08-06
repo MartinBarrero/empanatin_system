@@ -3,6 +3,7 @@ import type { RegistroDiario } from "@/lib/repositorios/registrosDiarios";
 import type { Fiado } from "@/lib/repositorios/fiados";
 import type { StockActual } from "@/lib/repositorios/inventario";
 import { calcularTotalesPorPeriodo, calcularUtilidadAcumulada } from "@/lib/dashboard";
+import { hoyISO } from "@/lib/fecha";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { UtilidadAcumuladaChart } from "./UtilidadAcumuladaChart";
 
@@ -18,7 +19,7 @@ function formatoPesos(valor: number): string {
 }
 
 export function DashboardSection({ registros, fiados, stock, capital }: Props) {
-  const hoy = new Date().toISOString().slice(0, 10);
+  const hoy = hoyISO();
   const totales = calcularTotalesPorPeriodo(registros, hoy);
   const serieUtilidad = calcularUtilidadAcumulada(registros);
   const deudaPendiente = fiados
