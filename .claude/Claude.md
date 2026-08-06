@@ -48,8 +48,7 @@ Cada día la dueña ingresa:
 - `carne_llevada`: cantidad de empanadas de carne que llevó ese día (dato **potencial**, no separado por tipo de venta/promo).
 - `pollo_llevada`: cantidad de empanadas de pollo que llevó ese día.
 - `regalos_carne`: cuántas de esas empanadas de carne se regalaron en dinámicas (informativo — **solo existen regalos de carne**, nunca de pollo).
-- `ingreso_total`: dinero total contado al final del día (efectivo + transferencias). **Este total ya incluye cualquier pago de fiado recibido ese día** — no se debe sumar aparte.
-- Distribución del ingreso entre bolsillos: `monto_caja`, `monto_monedas`, `monto_nu` (deben sumar `ingreso_total`).
+- Montos por bolsillo: `monto_billetera` (efectivo en mano), `monto_monedas`, `monto_nu`. **Ya no se ingresa un total manual** — `ingreso_total` se calcula automáticamente como la suma de los tres: `ingreso_total = monto_billetera + monto_monedas + monto_nu`. Este total ya incluye cualquier pago de fiado recibido ese día (la usuaria lo cuenta junto con lo demás, no se suma aparte).
 
 No se pide diferenciar cuántas ventas fueron normales vs. promoción 2x$4.000 — la dueña es flexible con esto y no necesita un resultado exacto por ese lado.
 
@@ -63,10 +62,14 @@ costo_unit_pollo = costo_paquete_pollo / unidades_por_paquete
 
 costo_recuperado = (carne_llevada * costo_unit_carne) + (pollo_llevada * costo_unit_pollo)
 
+ingreso_total = monto_billetera + monto_monedas + monto_nu   // calculado, no se ingresa manualmente
+
 gasto_operativo = gasto_operativo_diario   // fijo, siempre se resta completo (confirmado por la usuaria: "siempre alcanza")
 
 utilidad = ingreso_total - costo_recuperado - gasto_operativo
 ```
+
+> Nota de migración: en la Fase 2 ya se implementó `ingreso_total` como campo manual con una validación de que los bolsillos cuadraran con él (`sumaBolsillosCuadra`). Ese enfoque queda obsoleto: ahora `ingreso_total` se deriva siempre de los tres montos de bolsillo, así que la validación de cuadre ya no es necesaria (no puede haber descuadre porque es la misma suma).
 
 Reglas clave confirmadas por la usuaria:
 - El `costo_recuperado` **siempre** se acredita completo al capital de reinversión, sin importar si `ingreso_total` alcanzó a cubrirlo. Si no alcanza, lo que falta se descuenta de la utilidad del día (la utilidad puede, en teoría, dar negativa — aunque en la práctica la usuaria indica que normalmente sí alcanza).
@@ -91,7 +94,7 @@ Reglas clave confirmadas por la usuaria:
 - Evento independiente de las ventas diarias — se puede registrar cualquier día.
 - Campos: fecha, tipo (`carne` / `pollo` / `salsa`), cantidad de paquetes, costo total (autocalculado con la configuración vigente, pero editable por si hay descuentos).
 - Al registrar una compra: descuenta del capital de reinversión y aumenta el stock correspondiente (paquetes × 25 unidades para carne/pollo).
-- Opcional (mejora): permitir indicar de qué bolsillo salió el dinero (Caja/Monedas/Nu) para descontar ese saldo.
+- Opcional (mejora): permitir indicar de qué bolsillo salió el dinero (Billetera/Monedas/Nu) para descontar ese saldo.
 
 ### 3.7 Fiados (cuentas por cobrar)
 
@@ -99,7 +102,7 @@ Reglas clave confirmadas por la usuaria:
 - Se permiten abonos parciales (agregar un campo de monto abonado o registrar el fiado como una serie de abonos hasta llegar al monto total — a definir en el diseño de UI, pero el modelo de datos debe soportarlo).
 - Cuando se marca como pagado, **no se suma automáticamente a `ingreso_total`** de ningún día — la usuaria ya lo cuenta manualmente el día que le pagan, dentro de su total contado.
 
-### 3.8 Bolsillos (Caja, Monedas, Nu)
+### 3.8 Bolsillos (Billetera, Monedas, Nu)
 
 - Se quiere ver cuánto hay acumulado en cada uno.
 - `saldo_bolsillo = SUM(registros_diarios.monto_bolsillo correspondiente) - retiros registrados (ej. compras pagadas desde ese bolsillo)`
@@ -127,8 +130,8 @@ create table registros_diarios (
   carne_llevada int not null default 0,
   pollo_llevada int not null default 0,
   regalos_carne int not null default 0,
-  ingreso_total numeric not null default 0,
-  monto_caja numeric not null default 0,
+  ingreso_total numeric not null default 0,  -- calculado: monto_billetera + monto_monedas + monto_nu
+  monto_billetera numeric not null default 0,
   monto_monedas numeric not null default 0,
   monto_nu numeric not null default 0,
   costo_recuperado numeric not null,   -- congelado al momento del registro
@@ -156,7 +159,7 @@ create table compras_mercancia (
   tipo text not null check (tipo in ('carne','pollo','salsa')),
   cantidad_paquetes int not null,
   costo_total numeric not null,
-  bolsillo_origen text, -- 'caja' | 'monedas' | 'nu' (opcional)
+  bolsillo_origen text, -- 'billetera' | 'monedas' | 'nu' (opcional)
   created_at timestamptz default now()
 );
 ```
@@ -165,21 +168,46 @@ create table compras_mercancia (
 
 ---
 
-## 5. Pantallas / funcionalidades
+## 5. Arquitectura de página: una sola página con scroll (NO multi-ruta)
 
-1. **Registro diario** (formulario principal): ingresar carne/pollo llevada, regalos de carne, ingreso total, distribución en bolsillos, notas. Muestra en vivo el cálculo de costo recuperado, gasto operativo y utilidad antes de guardar.
-2. **Fiados**: lista de deudas pendientes y pagadas, con opción de marcar como pagado o abonar parcialmente, y registrar nuevas.
-3. **Compras de mercancía**: registrar compra de paquetes (carne/pollo/salsa), ver historial.
-4. **Inventario**: stock actual de carne y pollo (calculado).
-5. **Dashboard**: 
+**Cambio importante de diseño:** en vez de páginas separadas con navegación/redirecciones, todo el sitio vive en `app/page.tsx` como una sola página larga, dividida en secciones con `id` (anclas), a las que se llega con scroll suave (`scroll-behavior: smooth`), no con `<Link href="/ruta">`.
+
+Internamente el código sí puede (y debe) organizarse en componentes separados por carpeta/feature (ej. `components/registro/`, `components/fiados/`, etc.) para mantenibilidad — lo que cambia es que todos se renderizan dentro de la misma página, no en rutas independientes.
+
+Secciones, en este orden:
+
+1. **`#hero`** — Sección de bienvenida:
+   - Logo de Empanatin (imagen ya provista en el proyecto) como elemento visual principal.
+   - Título/eslogan de marca.
+   - Botón principal: **"Registra tus ventas Martin"** — hace scroll suave hacia `#registro`.
+   - Debajo, 3 botones/tarjetas de acceso directo (scroll suave, no redirección):
+     - "Ver el Dashboard" → `#dashboard`
+     - "Ver el stock" → `#stock`
+     - "Ver las deudas" → `#fiados`
+
+2. **`#registro`** — Registro diario, en dos columnas:
+   - Izquierda: formulario de registro diario (carne/pollo llevada, regalos de carne, montos de billetera/monedas/nu, notas), con vista previa en vivo de costo recuperado/gasto operativo/utilidad.
+   - Derecha: gráfica de ventas **solo de la semana actual**. Esta gráfica puede implementarse inicialmente con datos mock/estáticos (aún no es su fase de datos reales) — se conecta a datos reales de Supabase en una fase posterior.
+
+3. **`#dashboard`** — Dashboard completo:
    - Ventas por día/semana/mes
    - Comparación carne vs. pollo (unidades llevadas)
    - Utilidad acumulada (línea de tiempo)
    - Capital disponible para reinversión
    - Total de deudas pendientes (fiados)
-   - Saldos por bolsillo (Caja/Monedas/Nu)
+   - Saldos por bolsillo (Billetera/Monedas/Nu)
    - Totales: diario, semanal, mensual
-6. **Edición de un día ya registrado**: debe permitir corregir un registro pasado. Como el capital, inventario y saldos son calculados (no mutables), esto se resuelve automáticamente al editar el registro base — pero hay que tener cuidado con la UI para no permitir inconsistencias (ej. fecha duplicada).
+
+4. **`#fiados`** — Fiados y deudas:
+   - Lista de deudas pendientes y pagadas, con opción de marcar como pagado o abonar parcialmente, y registrar nuevas.
+
+5. **`#stock`** — Stock e inventario:
+   - Stock actual de paquetes/unidades de carne y pollo (calculado).
+   - Botón para registrar compra de X cantidad de paquetes de carne o pollo (o salsa).
+
+**Edición de un día ya registrado:** debe seguir siendo posible desde la sección `#registro` (buscar por fecha y editar sin duplicar). Como el capital, inventario y saldos son calculados (no mutables), esto se resuelve automáticamente al editar el registro base.
+
+**Nota de migración:** la Fase 2 implementó `/registro-diario` como ruta independiente. Al pasar a página única, ese formulario debe moverse a un componente embebido en `#registro` dentro de `app/page.tsx` (se puede conservar la lógica de repositorios/acciones tal cual, solo cambia dónde se monta el componente).
 
 ---
 
@@ -191,26 +219,30 @@ Se empieza desde cero — no hay migración de registros manuales anteriores.
 
 ## 7. Diseño visual
 
-- **Dark mode**, pero no negro puro — usar tonos gris oscuro/azulado, no `#000000`.
-- Nombre del proyecto: **Empanatin**.
+- **Dark mode**, tirando a negro pero no negro puro absoluto — usar un gris muy oscuro casi negro, no `#000000` plano.
+- Nombre del proyecto: **Empanatin**, con **header centrado** (el texto/logo "Empanatin" va en el centro del header, no a la izquierda).
+- Logo: usar la imagen del logo de Empanatin ya incluida en el proyecto como elemento visual principal del hero.
+- **Sin color naranja/terracota** — el acento de marca es **dorado/amarillo** (inspirado en el logo).
 - Verde para lo positivo/aprobado (utilidad, pagos al día, ganancias).
 - Rojo para lo negativo/desaprobado (deudas pendientes, gastos, utilidad negativa).
+- Botón principal (CTA del hero): texto exacto **"Registra tus ventas Martin"**.
+- No incluir la tagline "Fácil, rápido y pensado para ti." (se descarta).
 
 ### Paleta propuesta
 
 | Uso | Color | Hex |
 |---|---|---|
-| Fondo principal | Gris oscuro azulado | `#12141A` |
-| Superficie / cards | Gris oscuro un poco más claro | `#1C1F27` |
-| Borde sutil | Gris medio | `#2A2E38` |
-| Texto principal | Blanco hueso | `#EDEFF3` |
-| Texto secundario | Gris claro | `#9BA1AE` |
-| Acento de marca (Empanatin) | Terracota/naranja cálido (evoca masa horneada) | `#E08A4C` |
+| Fondo principal | Negro casi puro (gris muy oscuro) | `#0A0A0B` |
+| Superficie / cards | Gris oscuro | `#1A1A1D` |
+| Borde sutil | Gris medio oscuro | `#2C2C30` |
+| Texto principal | Blanco hueso | `#F5F5F0` |
+| Texto secundario | Gris claro | `#A3A3A8` |
+| Acento de marca (Empanatin) | Dorado/amarillo (inspirado en el logo) | `#F2C230` |
 | Positivo / utilidad / pagado | Verde | `#3DB56A` |
 | Negativo / deuda / gasto | Rojo | `#E2554A` |
-| Advertencia (opcional) | Ámbar | `#E0B94C` |
+| Advertencia (opcional) | Ámbar (más apagado que el dorado de marca, para no confundir) | `#D9A441` |
 
-Tipografía: una sans-serif moderna (ej. Inter o system-ui) — limpia y legible en modo oscuro.
+Tipografía: una serif con carácter para títulos grandes (ej. Playfair Display o similar, como en la referencia visual) + una sans-serif moderna para el resto del texto (ej. Inter o system-ui).
 
 ---
 
